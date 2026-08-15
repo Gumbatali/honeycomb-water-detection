@@ -221,6 +221,31 @@ def _watershed_from_seeds(
     return labels
 
 
+def order_zones_by_grid(zones: list[Zone]) -> list[Zone]:
+    """Упорядочивает зоны так, как читается сетка: сверху вниз, слева направо.
+
+    Нужно для сопоставления найденных зон с протоколом эксперимента,
+    где зоны перечислены в порядке их расположения на образце.
+    """
+    if not zones:
+        return []
+
+    row_tolerance = float(np.median([z.height for z in zones])) * 0.6
+    by_row = sorted(zones, key=lambda z: z.center[0])
+
+    rows: list[list[Zone]] = [[by_row[0]]]
+    for zone in by_row[1:]:
+        if abs(zone.center[0] - rows[-1][0].center[0]) <= row_tolerance:
+            rows[-1].append(zone)
+        else:
+            rows.append([zone])
+
+    ordered: list[Zone] = []
+    for row in rows:
+        ordered.extend(sorted(row, key=lambda z: z.center[1]))
+    return ordered
+
+
 def zone_profile(features: FeatureMaps, zone: Zone) -> dict[str, float]:
     """Усредняет все признаки внутри зоны — вектор для классификатора."""
     patch = features.maps[zone.row0 : zone.row1, zone.col0 : zone.col1, :]

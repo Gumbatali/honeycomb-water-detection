@@ -9,7 +9,7 @@ import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, Response
 
-from src.detection.zones import detect_zones, zone_profile
+from src.detection.zones import detect_zones, order_zones_by_grid, zone_profile
 from src.preprocessing.dataset import load_features
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -101,6 +101,32 @@ def get_map(name: str, feature: str) -> Response:
     if feature not in features.names:
         raise HTTPException(status_code=400, detail=f"Неизвестный признак '{feature}'")
     return Response(content=render_map_png(features[feature]), media_type="image/png")
+
+
+@app.get("/api/samples/{name}/compare")
+def compare_features(name: str) -> dict:
+    """Сравнение профилей всех зон образца — основа для классификации.
+
+    Возвращает зоны, упорядоченные как читается сетка, чтобы их можно
+    было сопоставить с протоколом эксперимента.
+    """
+    features, meta = load_features(_find_sample(name))
+    zones = order_zones_by_grid(detect_zones(features))
+
+    return {
+        "sample": meta.name,
+        "orientation": meta.orientation,
+        "features": list(features.names),
+        "zones": [
+            {
+                "index": index + 1,
+                "bbox": [zone.row0, zone.col0, zone.row1, zone.col1],
+                "score": round(zone.score, 3),
+                "profile": zone_profile(features, zone),
+            }
+            for index, zone in enumerate(zones)
+        ],
+    }
 
 
 @app.get("/", response_class=HTMLResponse)
