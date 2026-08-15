@@ -128,8 +128,11 @@ def detect_zones(
     else:
         anomaly = (values > median + threshold_sigma * spread) & mask
 
+    # Замыкание ядром шире промежутка между зонами сваривает их в один блок,
+    # после чего разделить зоны уже нечем. Ядро 3x3 закрывает шум, но
+    # сохраняет перемычки шириной от 2 px.
     anomaly = ndimage.binary_opening(anomaly, np.ones((3, 3)))
-    anomaly = ndimage.binary_closing(anomaly, np.ones((5, 5)))
+    anomaly = ndimage.binary_closing(anomaly, np.ones((3, 3)))
 
     # Зоны у самой кромки панели — почти всегда оснастка/крепёж, а не дефект.
     # Эрозия идёт итерациями по 3x3: ширина отступа равна edge_margin пикселям
@@ -148,25 +151,74 @@ def detect_zones(
     zones: list[Zone] = []
     for index in range(1, count + 1):
         component = labels == index
-        area = int(component.sum())
-        if area < min_area:
+        if int(component.sum()) < min_area:
             continue
 
-        rows, cols = np.where(component)
-        row0, row1 = int(rows.min()), int(rows.max()) + 1
-        col0, col1 = int(cols.min()), int(cols.max()) + 1
-        height, width = row1 - row0, col1 - col0
+        # При низком пороге соседние зоны сливаются в один блоб —
+        # разделяем его по водоразделу, иначе он отсеется по форме.
+        for piece in _split_merged(component, min_area):
+            area = int(piece.sum())
+            if area < min_area:
+                continue
 
-        aspect = max(height, width) / max(min(height, width), 1)
-        if aspect > max_aspect_ratio:
-            continue
-        if area / max(height * width, 1) < min_fill_ratio:
-            continue
+            rows, cols = np.where(piece)
+            row0, row1 = int(rows.min()), int(rows.max()) + 1
+            col0, col1 = int(cols.min()), int(cols.max()) + 1
+            height, width = row1 - row0, col1 - col0
 
-        contrast = abs(float(values[component].mean()) - median) / spread
-        zones.append(Zone(row0=row0, col0=col0, row1=row1, col1=col1, score=contrast))
+            aspect = max(height, width) / max(min(height, width), 1)
+            if aspect > max_aspect_ratio:
+                continue
+            if area / max(height * width, 1) < min_fill_ratio:
+                continue
+
+            contrast = abs(float(values[piece].mean()) - median) / spread
+            zones.append(Zone(row0=row0, col0=col0, row1=row1, col1=col1, score=contrast))
 
     return sorted(zones, key=lambda z: z.score, reverse=True)
+
+
+def _split_merged(component: np.ndarray, min_area: int) -> list[np.ndarray]:
+    """Разделяет слипшиеся зоны водоразделом по карте расстояний.
+
+    Признак слипания — несколько устойчивых максимумов карты расстояний
+    внутри компоненты. Форма для этого не годится: сетка 2x3 при слиянии
+    даёт компактный блоб, неотличимый по aspect ratio от одиночной зоны.
+    """
+    from scipy import ndimage
+
+    distance = ndimage.distance_transform_edt(component)
+    if distance.max() < 3:
+        return [component]
+
+    # Порог по максимуму расстояния оставляет только ядра зон;
+    # перемычки между слипшимися зонами тоньше и отсекаются.
+    seeds, n_seeds = ndimage.label(distance > distance.max() * 0.55)
+    if n_seeds < 2:
+        return [component]
+
+    filled = _watershed_from_seeds(distance, seeds, component)
+    pieces = [filled == i for i in range(1, n_seeds + 1)]
+    kept = [p for p in pieces if int(p.sum()) >= min_area]
+    return kept if len(kept) >= 2 else [component]
+
+
+def _watershed_from_seeds(
+    distance: np.ndarray, seeds: np.ndarray, mask: np.ndarray
+) -> np.ndarray:
+    """Наращивает семена до границ маски (водораздел без внешних зависимостей)."""
+    from scipy import ndimage
+
+    labels = seeds.copy()
+    structure = np.ones((3, 3))
+    # Итеративная дилатация: каждое семя растёт, не перекрывая соседей.
+    for _ in range(int(distance.max()) + 2):
+        grown = ndimage.grey_dilation(labels, footprint=structure)
+        update = (labels == 0) & mask & (grown > 0)
+        if not update.any():
+            break
+        labels = np.where(update, grown, labels)
+    return labels
 
 
 def zone_profile(features: FeatureMaps, zone: Zone) -> dict[str, float]:
