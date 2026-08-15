@@ -1,0 +1,28 @@
+# Data (large binaries, kept out of git — see data/raw/README.md)
+data/raw/*
+!data/raw/.gitkeep
+!data/raw/README.md
+data/processed/*
+!data/processed/.gitkeep
+data/synthetic/*
+!data/synthetic/.gitkeep
+
+*.mat
+*.7z
+*.zip
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# Secrets
+*.pem
+ssh-key-*
+.env
