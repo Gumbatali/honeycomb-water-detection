@@ -112,17 +112,47 @@ class CoralOrdinalHead(nn.Module):
         super().__init__()
         self.stats = stats if stats is not None else TemporalStats(n_probe_points)
         self.projection = nn.Linear(channels, 1, bias=False)
-        self.bias_raw = nn.Parameter(torch.zeros(N_THRESHOLDS))
+
+        # Преинициализация порогов равными зазорами 1/(K-1), как в референсной
+        # реализации CORAL (Cao, Mirjalili, Raschka, 2020): авторы отмечают, что
+        # старт с убывающих значений вместо нулей даёт более быструю сходимость
+        # и лучшую генерализацию. Нули в bias_raw дали бы softplus(0)=0.693 и
+        # стартовые вероятности 0.33/0.20 — перекос к нижней градации ещё до
+        # первого шага.
+        gap = 1.0 / (N_THRESHOLDS + 1)
+        self.bias_raw = nn.Parameter(
+            torch.log(torch.expm1(torch.full((N_THRESHOLDS,), gap)))
+        )
+        # Общий сдвиг центрирует пороги; монотонность от него не зависит.
+        self.bias_offset = nn.Parameter(torch.tensor(gap * (N_THRESHOLDS + 1) / 2))
 
     @property
     def thresholds(self) -> Tensor:
-        """Строго убывающие смещения порогов, (N_THRESHOLDS,)."""
-        return -torch.cumsum(F.softplus(self.bias_raw), dim=0)
+        """Строго убывающие смещения порогов, (N_THRESHOLDS,).
+
+        Монотонность гарантирована конструкцией при любых значениях
+        параметров: `cumsum(softplus(·))` строго возрастает, поэтому
+        `offset - cumsum` строго убывает.
+        """
+        return self.bias_offset - torch.cumsum(F.softplus(self.bias_raw), dim=0)
+
+    def logits(self, x: Tensor) -> Tensor:
+        """(B, n_cells, C, T) -> (B, n_cells, 2), ЛОГИТЫ порогов.
+
+        Основной вход для `coral_loss`: путь через логиты численно устойчив,
+        тогда как логарифм от вероятностей требует отсечки, зануляющей
+        градиент на насыщении сигмоиды (см. `src/train/losses.coral_loss`).
+        """
+        score = self.projection(self.stats(x))  # (B, n_cells, 1)
+        return score + self.thresholds
 
     def forward(self, x: Tensor) -> Tensor:
-        """(B, n_cells, C, T) -> (B, n_cells, 2), вероятности P(градация > k)."""
-        score = self.projection(self.stats(x))  # (B, n_cells, 1)
-        return torch.sigmoid(score + self.thresholds)
+        """(B, n_cells, C, T) -> (B, n_cells, 2), вероятности P(градация > k).
+
+        Для обучения используйте `logits`; сигмоида здесь — для инференса
+        и интерпретации.
+        """
+        return torch.sigmoid(self.logits(x))
 
     def predict_grade(self, probabilities: Tensor) -> Tensor:
         """Переводит P(градация > k) в индекс градации 0..2 порогом 0.5."""

@@ -65,14 +65,16 @@ class HoneycombNet(nn.Module):
 
         Returns:
             dict с ключами:
-              'substance_logits' (B, n_cells, 3) — логиты пусто/вода/эпоксидка;
-              'water_ordinal'    (B, n_cells, 2) — P(градация > k), CORAL.
+              'substance_logits'      (B, n_cells, 3) — логиты пусто/вода/эпоксидка;
+              'water_ordinal_logits'  (B, n_cells, 2) — логиты порогов, вход для loss;
+              'water_ordinal'         (B, n_cells, 2) — P(градация > k), для инференса.
         """
         features = self.temporal_encoder(x)
         features = self.spatial_block(features)
         cells = self.cell_pooling(features, cell_index, n_cells)
         return {
             "substance_logits": self.cls_head(cells),
+            "water_ordinal_logits": self.coral_head.logits(cells),
             "water_ordinal": self.coral_head(cells),
         }
 

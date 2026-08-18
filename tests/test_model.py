@@ -244,12 +244,24 @@ class TestFreezeSchedule:
         assert report["spatial_block"] == 27_936
 
     def test_heads_stay_within_budget(self, net: HoneycombNet) -> None:
-        """Головы — десятки параметров: 12 независимых зон не прокормят больше.
+        """Головы — сотня с небольшим параметров, как в ARCHITECTURE.md (~134).
 
-        ARCHITECTURE.md называет 134; фактически 133 — в записке потерян один
-        параметр при сложении (3*32+3 логитов + 32 проекции + 2 порога = 133).
+        Раскладка: 3*32+3 = 99 (cls) + 32 (проекция coral) + 2 (зазоры порогов)
+        + 1 (общий сдвиг порогов) + 5 (общее смешивание статистик) = 139.
         """
-        assert net.parameter_report()["heads"] == 133
+        assert net.parameter_report()["heads"] == 139
+
+    def test_heads_share_one_temporal_summary(self, net: HoneycombNet) -> None:
+        """Общий модуль статистик, а не две копии весов смешивания."""
+        assert net.cls_head.stats is net.coral_head.stats
+
+    def test_report_does_not_double_count_shared(self, net: HoneycombNet) -> None:
+        """Сумма по компонентам сходится с total без задвоения общего модуля."""
+        report = net.parameter_report()
+        components = (
+            report["temporal_encoder"] + report["spatial_block"] + report["heads"]
+        )
+        assert components == report["total"]
 
     def test_conservative_is_heads_only(self, net: HoneycombNet) -> None:
         trainable = net.freeze_for_finetune("conservative")
