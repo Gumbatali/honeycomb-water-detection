@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тепловой контроль сотовых панелей</title>
+<style>
+  :root {
+    --bg: oklch(16% 0.012 260);
+    --surface: oklch(21% 0.015 260);
+    --surface-raised: oklch(25% 0.018 260);
+    --line: oklch(32% 0.02 260);
+    --text: oklch(94% 0.005 260);
+    --muted: oklch(66% 0.012 260);
+    --accent: oklch(78% 0.16 65);
+    --accent-cool: oklch(72% 0.13 220);
+    --ok: oklch(74% 0.15 150);
+
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+
+    --space: clamp(1rem, 0.6rem + 1.2vw, 1.75rem);
+    --radius: 3px;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    padding: var(--space) calc(var(--space) * 1.5);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.05rem, 0.9rem + 0.5vw, 1.35rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  main {
+    display: grid;
+    /* minmax(0, 1fr) во второй колонке: иначе широкая таблица профилей
+       растягивает грид вместо того, чтобы скроллиться внутри себя. */
+    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+    gap: 0;
+    min-height: calc(100vh - 74px);
+  }
+
+  @media (max-width: 860px) {
+    /* minmax(240px, ...) не сжимается ниже 240px и переполняет узкий экран —
+       на мобильных колонка должна свободно ужиматься. */
+    main { grid-template-columns: minmax(0, 1fr); }
+    aside { border-right: none; border-bottom: 1px solid var(--line); }
+  }
+
+  aside {
+    border-right: 1px solid var(--line);
+    padding: var(--space);
+    background: var(--surface);
+  }
+
+  .label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .sample {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 0.7rem 0.8rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.86rem;
+    transition: border-color 160ms var(--ease), background 160ms var(--ease),
+                transform 160ms var(--ease);
+  }
+  .sample:hover { border-color: var(--accent-cool); transform: translateX(2px); }
+  .sample:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sample[aria-pressed="true"] {
+    background: var(--surface-raised);
+    border-color: var(--accent);
+  }
+
+  .sample .name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 0.3rem;
+  }
+  .sample .meta {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    display: flex;
+    gap: 0.75rem;
+  }
+  .badge { color: var(--accent); }
+
+  section.viewer { padding: var(--space) calc(var(--space) * 1.5); }
+
+  .controls {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: var(--space);
+    padding-bottom: var(--space);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .control { display: flex; flex-direction: column; gap: 0.35rem; }
+
+  select, input[type=range] {
+    background: var(--surface-raised);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0.42rem 0.6rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    min-width: 170px;
+  }
+  select:focus-visible, input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  input[type=range] { padding: 0; accent-color: var(--accent); cursor: pointer; }
+
+  .stage {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+    line-height: 0;
+  }
+  .stage img { max-width: 100%; height: auto; display: block; image-rendering: pixelated; }
+
+  .zone {
+    position: absolute;
+    border: 1.5px solid var(--accent);
+    background: color-mix(in oklch, var(--accent) 8%, transparent);
+    cursor: pointer;
+    transition: background 140ms var(--ease), border-color 140ms var(--ease);
+  }
+  .zone:hover, .zone.active {
+    background: color-mix(in oklch, var(--accent) 22%, transparent);
+    border-color: oklch(88% 0.17 65);
+  }
+  .zone span {
+    position: absolute;
+    top: -1px; left: -1px;
+    background: var(--accent);
+    color: oklch(18% 0.02 65);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 2px 4px;
+  }
+
+  .readout {
+    margin-top: var(--space);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0.8rem 0.9rem;
+    background: var(--surface);
+  }
+  .card h3 {
+    margin: 0 0 0.55rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .card dl { margin: 0; font-family: var(--mono); font-size: 0.74rem; }
+  .card .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.16rem 0;
+    border-bottom: 1px dotted color-mix(in oklch, var(--line) 70%, transparent);
+  }
+  .card .row:last-child { border-bottom: none; }
+  .card dt { color: var(--muted); }
+  .card dd { margin: 0; color: var(--text); }
+
+  .tabs { display: flex; gap: 0; }
+  .tab {
+    background: var(--surface-raised);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    padding: 0.42rem 0.85rem;
+    cursor: pointer;
+    transition: color 140ms var(--ease), background 140ms var(--ease);
+  }
+  .tab:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+  .tab:last-child { border-radius: 0 var(--radius) var(--radius) 0; border-left: none; }
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: oklch(18% 0.02 65);
+    font-weight: 600;
+  }
+  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .profile-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+  }
+  .profile-table th, .profile-table td {
+    text-align: right;
+    padding: 0.42rem 0.6rem;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .profile-table th {
+    color: var(--muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+  }
+  .profile-table th:first-child, .profile-table td:first-child {
+    text-align: left;
+    color: var(--accent);
+  }
+  .profile-table tbody tr:hover { background: var(--surface-raised); }
+  /* Выброс по признаку — кандидат на иное вещество или заполнение. */
+  .profile-table td.outlier { color: var(--accent); font-weight: 700; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+
+  .empty {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    padding: 2.5rem 0;
+  }
+  .count { color: var(--ok); font-family: var(--mono); font-size: 0.8rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Тепловой контроль сотовых панелей</h1>
+  <span class="subtitle">детекция · локализация · классификация</span>
+</header>
+
+<main>
+  <aside>
+    <div class="label">Образцы</div>
+    <div id="samples"></div>
+  </aside>
+
+  <section class="viewer">
+    <div class="controls">
+      <div class="control">
+        <label class="label" for="feature">Карта признака</label>
+        <select id="feature"></select>
+      </div>
+      <div class="control">
+        <label class="label" for="sigma">Порог, σ: <span id="sigmaVal">1.0</span></label>
+        <input type="range" id="sigma" min="0.3" max="3" step="0.1" value="1">
+      </div>
+      <div class="control">
+        <span class="label">Найдено зон</span>
+        <span class="count" id="count">—</span>
+      </div>
+      <div class="control">
+        <span class="label">Вид</span>
+        <div class="tabs" role="tablist">
+          <button class="tab" id="tabMap" role="tab" aria-selected="true">карта</button>
+          <button class="tab" id="tabTable" role="tab" aria-selected="false">профили</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="stageWrap"><p class="empty">Выберите образец слева.</p></div>
+    <div class="readout" id="readout"></div>
+  </section>
+</main>
+
+<script>
+const state = { sample: null, feature: 'half_decay_time', sigma: 1.0, zones: [], meta: null, view: 'map' };
+
+const el = (id) => document.getElementById(id);
+
+async function loadSamples() {
+  const samples = await (await fetch('/api/samples')).json();
+  const box = el('samples');
+  if (!samples.length) {
+    box.innerHTML = '<p class="empty">Нет обработанных образцов.<br>Запустите конвейер.</p>';
+    return;
+  }
+  box.innerHTML = '';
+  samples.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.className = 'sample';
+    b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = `<span class="name">${s.name}</span>
+      <span class="meta"><span>${s.height}×${s.width}</span>
+      <span>${s.orientation}</span>
+      <span class="badge">${s.n_zones} зон</span></span>`;
+    b.onclick = () => selectSample(s, b);
+    box.appendChild(b);
+    if (i === 0) { el('feature').innerHTML = s.features.map(f => `<option>${f}</option>`).join(''); el('feature').value = state.feature; }
+  });
+}
+
+function selectSample(sample, button) {
+  document.querySelectorAll('.sample').forEach(b => b.setAttribute('aria-pressed', 'false'));
+  button.setAttribute('aria-pressed', 'true');
+  state.sample = sample.name;
+  state.meta = sample;
+  setView(state.view);
+}
+
+async function refresh() {
+  if (!state.sample) return;
+  const q = `feature=${encodeURIComponent(state.feature)}&sigma=${state.sigma}`;
+  const data = await (await fetch(`/api/samples/${encodeURIComponent(state.sample)}/zones?${q}`)).json();
+  state.zones = data.zones;
+  el('count').textContent = data.zones.length;
+
+  const wrap = el('stageWrap');
+  wrap.innerHTML = `<div class="stage" id="stage">
+    <img id="mapImg" alt="Карта признака ${state.feature}">
+  </div>`;
+  const img = el('mapImg');
+  img.src = `/api/samples/${encodeURIComponent(state.sample)}/map/${encodeURIComponent(state.feature)}?t=${Date.now()}`;
+  img.onload = () => drawZones(data);
+  renderCards(null);
+}
+
+function drawZones(data) {
+  const stage = el('stage');
+  const img = el('mapImg');
+  const sx = img.clientWidth / data.width;
+  const sy = img.clientHeight / data.height;
+  data.zones.forEach((z, i) => {
+    const d = document.createElement('div');
+    d.className = 'zone';
+    d.style.left = (z.col0 * sx) + 'px';
+    d.style.top = (z.row0 * sy) + 'px';
+    d.style.width = ((z.col1 - z.col0) * sx) + 'px';
+    d.style.height = ((z.row1 - z.row0) * sy) + 'px';
+    d.innerHTML = `<span>${i + 1}</span>`;
+    d.onclick = () => {
+      document.querySelectorAll('.zone').forEach(x => x.classList.remove('active'));
+      d.classList.add('active');
+      renderCards(i);
+    };
+    stage.appendChild(d);
+  });
+}
+
+function renderCards(activeIndex) {
+  const box = el('readout');
+  const zones = activeIndex === null ? state.zones : [state.zones[activeIndex]];
+  if (!zones.length) { box.innerHTML = ''; return; }
+  box.innerHTML = zones.map((z, i) => {
+    const n = activeIndex === null ? i + 1 : activeIndex + 1;
+    const rows = Object.entries(z.profile).map(([k, v]) =>
+      `<div class="row"><dt>${k}</dt><dd>${Number(v).toFixed(3)}</dd></div>`).join('');
+    return `<div class="card"><h3>Зона ${n} · score ${z.score}</h3>
+      <dl><div class="row"><dt>bbox</dt><dd>${z.row0},${z.col0}–${z.row1},${z.col1}</dd></div>${rows}</dl></div>`;
+  }).join('');
+}
+
+async function showProfiles() {
+  if (!state.sample) return;
+  const data = await (await fetch(`/api/samples/${encodeURIComponent(state.sample)}/compare`)).json();
+  const feats = data.features;
+
+  // Медиана по каждому признаку: зона, отклоняющаяся более чем на 25%,
+  // подсвечивается как кандидат на иное вещество/заполнение.
+  const medians = {};
+  feats.forEach(f => {
+    const vals = data.zones.map(z => z.profile[f]).sort((a, b) => a - b);
+    medians[f] = vals[Math.floor(vals.length / 2)];
+  });
+
+  const head = `<tr><th>зона</th><th>bbox</th>${feats.map(f => `<th>${f}</th>`).join('')}</tr>`;
+  const rows = data.zones.map(z => {
+    const cells = feats.map(f => {
+      const v = z.profile[f];
+      const m = medians[f];
+      const dev = m !== 0 ? Math.abs((v - m) / m) : 0;
+      return `<td class="${dev > 0.25 ? 'outlier' : ''}">${v.toFixed(3)}</td>`;
+    }).join('');
+    return `<tr><td>${z.index}</td><td>${z.bbox.join(',')}</td>${cells}</tr>`;
+  }).join('');
+
+  el('stageWrap').innerHTML = `<div class="table-wrap">
+    <table class="profile-table"><thead>${head}</thead><tbody>${rows}</tbody></table></div>
+    <p class="empty" style="padding:0.9rem 0 0">Оранжевым — отклонение от медианы более 25%.</p>`;
+  el('readout').innerHTML = '';
+}
+
+function setView(view) {
+  state.view = view;
+  el('tabMap').setAttribute('aria-selected', String(view === 'map'));
+  el('tabTable').setAttribute('aria-selected', String(view === 'table'));
+  view === 'map' ? refresh() : showProfiles();
+}
+
+el('feature').onchange = (e) => { state.feature = e.target.value; if (state.view === 'map') refresh(); };
+el('sigma').oninput = (e) => { state.sigma = parseFloat(e.target.value); el('sigmaVal').textContent = state.sigma.toFixed(1); };
+el('sigma').onchange = () => { if (state.view === 'map') refresh(); };
+el('tabMap').onclick = () => setView('map');
+el('tabTable').onclick = () => setView('table');
+
+loadSamples();
+</script>
+</body>
+</html>

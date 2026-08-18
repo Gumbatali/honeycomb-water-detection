@@ -54,6 +54,8 @@ src/
   classification/ # классификация типа вещества и % заполнения
   augmentation/   # аугментация термограмм
   synthesis/      # физическая модель теплопередачи, генерация синтетики
+  model/          # TemporalEncoder -> SpatialBlock -> CellPooling -> головы
+  train/          # этап A: предобучение на синтетике, loss'ы, метрики
   utils/          # загрузка .mat, визуализация, метрики
 tests/            # unit-тесты
 scripts/          # CLI-скрипты запуска пайплайна
@@ -77,6 +79,20 @@ pip install -r requirements.txt
 ```
 
 См. [docs/plan.md](docs/plan.md) для поэтапного плана работ.
+
+### Этап A: предобучение на синтетике
+
+```bash
+python -m src.train.pretrain --n-samples 4000 --epochs 15 --batch-size 64
+```
+
+Кривые синтетики кэшируются в `data/synthetic/curves_<N>_<seed>.npz` при первом
+запуске: генерация одной кривой неявной FD-схемой занимает ~0.15 с, то есть
+4000 примеров — около 10 минут. Повторные запуски поднимают кэш за секунды.
+Чекпоинт лучшей эпохи по val loss пишется в `data/checkpoints/pretrain.pt`.
+
+Обучение идёт на CPU; `--device mps` или `--device cuda` доступны, но на
+патчах 4x4 выигрыша не дают. См. [ARCHITECTURE.md](ARCHITECTURE.md) раздел 6.
 
 ## Ссылки
 
