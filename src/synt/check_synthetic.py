@@ -19,8 +19,8 @@ def inspect_and_visualize():
         return
 
     # Ищем СТРОГО файлы чистой синтетики, сгенерированные нейросетью CVAE
-    mat_files = sorted(list(synthetic_dir.glob("*_cvae.mat")))
-    npy_files = sorted(list(synthetic_dir.glob("*_cvae.npy")))
+    mat_files = sorted(list(synthetic_dir.glob("*_mae.mat")))
+    npy_files = sorted(list(synthetic_dir.glob("*_mae.npy")))
 
     print("=" * 60)
     print(f"ДИРЕКТОРИЯ СИНТЕТИКИ: {synthetic_dir.resolve()}")
