@@ -6,8 +6,11 @@ data/processed/*
 !data/processed/.gitkeep
 data/synthetic/*
 !data/synthetic/.gitkeep
+data/checkpoints/*
+!data/checkpoints/.gitkeep
 
 *.mat
+*.pt
 *.7z
 *.zip
 

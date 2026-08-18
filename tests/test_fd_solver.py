@@ -227,6 +227,10 @@ def test_semi_infinite_body_decays_as_sqrt_t(substance: str):
 
     Классическое решение для мгновенного поверхностного источника.
     Проверяется наклон в log-log координатах с допуском +-20%.
+
+    Теплоотдача с поверхности отключена: закон t^(-1/2) выведен для тела
+    без потерь в среду, и с ненулевым `surface_loss_w_per_m2_k` наклон
+    закономерно круче (-0.66 при h = 10 Вт/(м^2*К)).
     """
     times = np.logspace(np.log10(6.0), np.log10(300.0), 80)
     # Столб 0.5 м с мелкой сеткой: за 300 c волна до дна не доходит,
@@ -239,6 +243,7 @@ def test_semi_infinite_body_decays_as_sqrt_t(substance: str):
         cell_height_m=0.5,
         n_nodes=1500,
         skin_thickness_m=0.0,
+        surface_loss_w_per_m2_k=0.0,
     )
 
     window = (times >= 20.0) & (times <= 200.0)
@@ -248,15 +253,43 @@ def test_semi_infinite_body_decays_as_sqrt_t(substance: str):
 
 
 def test_empty_cell_reaches_adiabatic_equilibrium():
-    """Пустая ячейка приходит к равновесию Q/(sum C_i * dx) — проверка энергии."""
+    """Пустая ячейка приходит к равновесию Q/(sum C_i * dx) — проверка энергии.
+
+    Баланс энергии проверяется в ЗАМКНУТОЙ постановке: теплоотдача с
+    поверхности отключена, иначе вся закачанная энергия уходит в среду и
+    равновесная температура стремится к нулю, а не к Q/(sum C_i * dx).
+    """
     _, rho_cp, _ = build_1d_stack(0.0, "empty", n_nodes=120)
     dx = 0.010 / 120
     deposited_j = 5000.0 * PULSE_S
     expected_k = deposited_j / (rho_cp * dx).sum()
 
-    final = simulate_cooling_curve(0.0, "empty", t_eval_s=np.array([300.0]))[0]
+    final = simulate_cooling_curve(
+        0.0, "empty", t_eval_s=np.array([300.0]), surface_loss_w_per_m2_k=0.0
+    )[0]
 
     assert final == pytest.approx(expected_k, rel=1e-3)
+
+
+def test_surface_loss_drains_energy_to_ambient():
+    """С теплоотдачей ячейка с воздухом остывает, без неё — держит плато.
+
+    Это и есть причина переписывания генератора: при адиабатических границах
+    воздушная ячейка (эффузивность 5.6 против 735 у обшивки) не остывает
+    вовсе, контраст к ней определяется фактом «воздух против вещества», и
+    синтетика остаётся тривиально разделимой по амплитуде.
+    """
+    times = np.array([5.5, 300.0])
+
+    adiabatic = simulate_cooling_curve(
+        0.0, "empty", t_eval_s=times, surface_loss_w_per_m2_k=0.0
+    )
+    with_loss = simulate_cooling_curve(0.0, "empty", t_eval_s=times)
+
+    # Без потерь плато: температура на 300 c практически та же, что на 5.5 c.
+    assert adiabatic[1] == pytest.approx(adiabatic[0], rel=0.02)
+    # С потерями энергия уходит в среду.
+    assert with_loss[1] < with_loss[0] * 0.01
 
 
 def test_harmonic_averaging_used_at_water_air_interface():
