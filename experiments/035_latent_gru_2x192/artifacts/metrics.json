@@ -1,0 +1,139 @@
+{
+  "architecture": "frozen U-Net e4+d3 latent fusion + ConvGRU",
+  "args": {
+    "epochs": 50,
+    "lr": 0.0001,
+    "weight_decay": 0.0005,
+    "hidden": 192,
+    "layers": 2,
+    "dropout": 0.1,
+    "use_d3": false,
+    "train_video": "water1",
+    "valid_video": "water2",
+    "output_dir": "/home/votter/projects/honeycomb-water-detection/experiments/035_latent_gru_2x192/artifacts",
+    "unet_checkpoint": "/home/votter/projects/honeycomb-water-detection/models/segmentation/v1/unet_water_v2.pth"
+  },
+  "best_validation": {
+    "macro_iou": 0.0846988377481626,
+    "epoch": 8,
+    "lr": 0.0001
+  },
+  "history": [
+    {
+      "macro_iou": 0.002341579861111111,
+      "epoch": 1,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.006601279910962716,
+      "epoch": 2,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.03105807014934608,
+      "epoch": 3,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.04766827237449145,
+      "epoch": 4,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.03368199002473848,
+      "epoch": 5,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.016014153650847376,
+      "epoch": 6,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.024805661057420037,
+      "epoch": 7,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.0846988377481626,
+      "epoch": 8,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.017030963061096516,
+      "epoch": 9,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.004472995680567069,
+      "epoch": 10,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.01057928632599107,
+      "epoch": 11,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.0022524236558217323,
+      "epoch": 12,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.0006810076852420567,
+      "epoch": 13,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.0,
+      "epoch": 14,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.0002762812543168946,
+      "epoch": 15,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.0007742117117117117,
+      "epoch": 16,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.00035750035750035746,
+      "epoch": 17,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.0019349775602309027,
+      "epoch": 18,
+      "lr": 5e-05
+    },
+    {
+      "macro_iou": 0.0009169135280011285,
+      "epoch": 19,
+      "lr": 5e-05
+    },
+    {
+      "macro_iou": 0.0006315789473684211,
+      "epoch": 20,
+      "lr": 5e-05
+    },
+    {
+      "macro_iou": 0.00027975940691005733,
+      "epoch": 21,
+      "lr": 5e-05
+    },
+    {
+      "macro_iou": 0.0,
+      "epoch": 22,
+      "lr": 5e-05
+    },
+    {
+      "macro_iou": 0.0,
+      "epoch": 23,
+      "lr": 5e-05
+    }
+  ],
+  "epochs_ran": 23
+}

@@ -1,0 +1,16 @@
+100-epoch CUDA all-augmentation curriculum result
+==================================================
+
+Initialisation: best checkpoint from 017_affine_then_flip_patch.  Fine-tuning
+train data: original water1/water2 plus all seven augmentation families (96
+sequences).  Validation: unchanged water4.
+
+Best checkpoint: epoch 24 of 100
+  macro-F1: 0.5556
+  accuracy: 0.6667
+  level MAE: 0.6667
+  BCE loss: 0.9623
+
+The additional augmentation diversity did not improve the held-out macro-F1.
+It plateaued after epoch 24; use artifacts/best.pt rather than final weights.
+

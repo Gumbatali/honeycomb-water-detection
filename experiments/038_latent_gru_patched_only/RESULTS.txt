@@ -1,0 +1,50 @@
+Experiment 038 result
+=====================
+
+Purpose
+-------
+Test whether translated defect patches help without adding the artificial
+all-background neutral video that degraded experiment 037.
+
+Configuration
+-------------
+Architecture: frozen U-Net v1 e4 latent features + full-frame thermal sequence
++ one 128-channel ConvGRU layer.  Input is 60 equally spaced frames covering
+0--29.5 seconds.  Training contains water1, the seven existing augmentations,
+and three translated defect-patch videos.  water120 is ignored.  Validation is
+the unchanged water2 video.  Warm start: experiment 037 best.pt; learning rate
+3e-5; AdamW weight decay 1e-4; maximum 30 epochs; early stopping patience 15.
+
+Result
+------
+Training stopped automatically at epoch 17.  Best checkpoint is epoch 2.
+Best five-class validation macro-IoU: 0.2242.
+
+Per-class validation IoU:
+  water20:  0.7030
+  water40:  0.1753
+  water60:  0.2429
+  water80:  0.0000
+  water100: 0.0000
+
+Comparison on the same five classes:
+  experiment 033 baseline:             0.1863
+  experiment 037 neutral + patches:    0.1783
+  experiment 038 patches without neutral: 0.2242
+
+Conclusion
+----------
+Patched-only fine-tuning improves macro-IoU by 0.0380 absolute (20.4% relative)
+over the comparable baseline.  The neutral all-background video should remain
+excluded.  The checkpoint still fails to identify water80 and water100 on
+water2, so 038 is the current best tuning checkpoint but not a final model.
+water4 remains untouched for a single final unbiased evaluation.
+
+Artifacts
+---------
+artifacts/best.pt
+artifacts/metrics.json
+artifacts/summary.txt
+artifacts/learning_curve.png
+artifacts/water2_validation.png
+artifacts/water2_validation_metrics.json

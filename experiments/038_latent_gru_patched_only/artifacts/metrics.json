@@ -1,0 +1,116 @@
+{
+  "architecture": "frozen U-Net latent fusion + ConvGRU",
+  "args": {
+    "epochs": 30,
+    "lr": 3e-05,
+    "weight_decay": 0.0001,
+    "hidden": 128,
+    "layers": 1,
+    "dropout": 0.0,
+    "use_d3": false,
+    "train_video": "water1",
+    "valid_video": "water2",
+    "num_classes": 6,
+    "ignore_label": 6,
+    "include_neutral_patch": false,
+    "include_patched_only": true,
+    "init_checkpoint": "/home/votter/projects/honeycomb-water-detection/experiments/037_latent_gru_no_water120_augmented/artifacts/best.pt",
+    "output_dir": "/home/votter/projects/honeycomb-water-detection/experiments/038_latent_gru_patched_only/artifacts",
+    "unet_checkpoint": "/home/votter/projects/honeycomb-water-detection/models/segmentation/v1/unet_water_v2.pth"
+  },
+  "best_validation": {
+    "macro_iou": 0.22424482924482922,
+    "epoch": 2,
+    "lr": 3e-05
+  },
+  "history": [
+    {
+      "macro_iou": 0.16975934201007523,
+      "epoch": 1,
+      "lr": 3e-05
+    },
+    {
+      "macro_iou": 0.22424482924482922,
+      "epoch": 2,
+      "lr": 3e-05
+    },
+    {
+      "macro_iou": 0.17669841498152267,
+      "epoch": 3,
+      "lr": 3e-05
+    },
+    {
+      "macro_iou": 0.17460300180876762,
+      "epoch": 4,
+      "lr": 3e-05
+    },
+    {
+      "macro_iou": 0.16509870931629583,
+      "epoch": 5,
+      "lr": 3e-05
+    },
+    {
+      "macro_iou": 0.1900632971386098,
+      "epoch": 6,
+      "lr": 3e-05
+    },
+    {
+      "macro_iou": 0.17765220448355873,
+      "epoch": 7,
+      "lr": 3e-05
+    },
+    {
+      "macro_iou": 0.16581385795637,
+      "epoch": 8,
+      "lr": 3e-05
+    },
+    {
+      "macro_iou": 0.1284724237580593,
+      "epoch": 9,
+      "lr": 3e-05
+    },
+    {
+      "macro_iou": 0.14288422960963212,
+      "epoch": 10,
+      "lr": 3e-05
+    },
+    {
+      "macro_iou": 0.1489144042358606,
+      "epoch": 11,
+      "lr": 3e-05
+    },
+    {
+      "macro_iou": 0.16375211377396184,
+      "epoch": 12,
+      "lr": 1.5e-05
+    },
+    {
+      "macro_iou": 0.16308644068112926,
+      "epoch": 13,
+      "lr": 1.5e-05
+    },
+    {
+      "macro_iou": 0.158602513148795,
+      "epoch": 14,
+      "lr": 1.5e-05
+    },
+    {
+      "macro_iou": 0.1224452050988574,
+      "epoch": 15,
+      "lr": 1.5e-05
+    },
+    {
+      "macro_iou": 0.15951478133992109,
+      "epoch": 16,
+      "lr": 1.5e-05
+    },
+    {
+      "macro_iou": 0.14107856298250548,
+      "epoch": 17,
+      "lr": 1.5e-05
+    }
+  ],
+  "epochs_ran": 17,
+  "train_samples": 11,
+  "warm_start_keys": 188
+}

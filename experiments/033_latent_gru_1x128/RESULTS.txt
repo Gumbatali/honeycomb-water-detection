@@ -1,0 +1,15 @@
+Stage-2 GRU search result
+=========================
+
+Frozen U-Net v1 e4-only features; no U-Net mask and no d3.  Tuning split:
+train water1 + all augmentations, validation water2.  The complete panel is
+observed for 60 frames across 30 seconds.
+
+Configuration: one ConvGRU layer, 128 channels, no recurrent dropout,
+AdamW lr=3e-4, weight decay=1e-4.
+
+Early stopped at epoch 25 of 50.  Best epoch: 10.
+Best water2 macro-IoU: 0.1364.
+
+This is the winning GRU configuration for final training.
+

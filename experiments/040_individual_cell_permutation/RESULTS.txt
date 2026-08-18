@@ -1,0 +1,31 @@
+Experiment 040 result
+=====================
+
+Independent per-cell permutation augmentation, U-Net v1 pyramid ConvGRU,
+fresh seed 17.  Completed by early stopping at epoch 56; best epoch 26.
+
+Best water2 validation metrics:
+  macro-IoU:   0.3282
+  macro-Dice:  0.3749
+  ordinal MAE: 1.0797
+  validation loss: 1.7969
+
+Per-class IoU:
+  water20:  0.9405
+  water40:  0.0000
+  water60:  0.0000
+  water80:  0.2392
+  water100: 0.4614
+
+Compared with rigid-group patching experiment 039 (0.1781), independent cell
+permutations improve macro-IoU by 0.1502 absolute and prevent complete spatial
+class permutation.  The best epoch moves to 26.  Train loss still falls to
+0.0157 while validation loss bottoms at epoch 4 and later rises, confirming
+overfitting after the selected checkpoint.
+
+A large reflection below the panel is still predicted as a defect because ROI
+masking is absent.  water40 and water60 remain confused with higher classes.
+Next: documented panel ROI plus per-pixel peak-normalized temporal curves.
+
+Artifacts: artifacts/best.pt, metrics.json, summary.txt,
+training_dynamics.png, water2_validation.png, water2_confusion_matrix.json.

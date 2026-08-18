@@ -1,0 +1,116 @@
+Experiment 045 results
+======================
+
+Status: completed all 20 epochs on CUDA in the studcamp environment.
+Best checkpoint: artifacts/best.pt, epoch 18.
+
+Best water2 validation metrics
+------------------------------
+macro IoU:       0.593125
+macro Dice:      0.656576
+validation loss: 0.770424
+ordinal MAE:     0.302673
+
+IoU by water class
+------------------
+class 1: 0.901028
+class 2: 0.186828
+class 3: 0.502235
+class 4: 0.666968
+class 5: 0.708565
+
+Controlled comparison with experiment 044 (spatial augmentation only)
+---------------------------------------------------------------------
+macro IoU:       0.518785 -> 0.593125  (+0.074340, +14.3% relative)
+validation loss: 0.855703 -> 0.770424  (-0.085279)
+ordinal MAE:     0.346436 -> 0.302673  (-0.043763)
+best epoch:      6 -> 18
+
+The temporal transforms delayed the optimum rather than making the first few
+epochs best.  Train/validation loss was nearly equal at epoch 10 (0.832737 vs
+0.841594).  Overfitting was visible around epoch 15, followed by a better
+validation optimum at epoch 18.  The saved best checkpoint must therefore be
+used instead of the final epoch.
+
+Per-class comparison versus 044
+-------------------------------
+class 1: 0.887306 -> 0.901028
+class 2: 0.499353 -> 0.186828
+class 3: 0.502142 -> 0.502235
+class 4: 0.453165 -> 0.666968
+class 5: 0.251957 -> 0.708565
+
+The aggregate result improved substantially, especially for water classes 4
+and 5.  Class 2 regressed: the confusion matrix shows 552 of its pixels were
+assigned to class 3.  Thus experiment 045 is the strongest macro-IoU model so
+far, but it is not yet a uniformly better classifier for every water level.
+
+Observed online augmentation counts (320 training samples)
+-----------------------------------------------------------
+identity / rotation 180: 162 / 158
+scale and translation:  233
+cell permutation:       170
+local defect gain:      220
+onset shift:            157 (mean active shift -0.012 s)
+global time warp:       170 (mean active factor 0.993)
+cooling warp:            86 (mean active factor 1.015)
+
+Input-normalization finding
+---------------------------
+No new normalization was mixed into this experiment.  The existing pipeline
+already uses per-pixel peak normalization for the 60-frame thermal sequence,
+global normalization for the seven U-Net frames, frozen U-Net BatchNorm, and
+GroupNorm in the trainable spatial encoder.  Measured water1/water2 statistics
+were close before the GRU: raw mean/std 0.164/0.266 versus 0.152/0.262, and
+fused latent mean/std 0.445/1.083 versus 0.440/1.101.  Applying independent
+normalization to every time step could erase the heating/cooling magnitude that
+the recurrent layer must observe.  Recurrent normalization should be tested as
+a separate controlled experiment, not combined with the augmentation result.
+
+Artifacts
+---------
+artifacts/train_val_convergence.png: curves for experiments 044 and 045
+artifacts/water2_validation.png: thermal frame, target, prediction and error
+artifacts/water2_confusion_matrix.json: exact confusion matrix
+artifacts/metrics.json: complete epoch history and augmentation counts
+TensorBoard logs: experiments/tensorboard_logs
+
+Final one-shot test on untouched water4
+---------------------------------------
+The epoch-18 checkpoint selected only on water2 was evaluated on water4 after
+all training and model selection had finished.
+
+macro IoU:   0.547147
+macro Dice:  0.582354
+test loss:   1.119207
+ordinal MAE: 0.687684
+
+class 1 IoU: 0.630065
+class 2 IoU: 0.807531
+class 3 IoU: 0.000000
+class 4 IoU: 0.621600
+class 5 IoU: 0.676538
+
+The validation-to-test macro-IoU reduction is 0.045978, or 7.8% relative.
+Compared with experiment 044 evaluated under the identical water4 protocol,
+temporal augmentation improves test macro IoU from 0.325045 to 0.547147
+(+0.222102, +68.3% relative), test loss from 1.321151 to 1.119207, and ordinal
+MAE from 0.878440 to 0.687684.  The largest gain is class 5: 0.012548 to
+0.676538 IoU.  Thus the validation improvement transfers strongly to the
+independent recording.
+
+Class 3 remains a systematic failure: no test pixel is predicted as class 3;
+498 true class-3 pixels become background and 169 become class 4.  Experiment
+044 also had zero class-3 IoU, so this failure predates temporal augmentation.
+The likely issue is insufficient separation of the middle cooling curves from
+one training recording, possibly compounded by class-3/4 annotation alignment.
+
+Test artifacts:
+artifacts/water4_test.png
+artifacts/water4_test_metrics.json
+artifacts/water4_test_confusion_matrix.json
+
+Important protocol note: water4 has now been opened for final evaluation.  It
+must not guide subsequent hyperparameter or augmentation selection.  A future
+unbiased final estimate requires an additional independent recording or a
+video-level cross-validation protocol fixed in advance.

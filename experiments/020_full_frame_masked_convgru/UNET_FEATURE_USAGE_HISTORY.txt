@@ -1,0 +1,47 @@
+Restored U-Net integration history
+==================================
+
+What was actually used
+----------------------
+The current pipeline does NOT yet feed latent U-Net tensors into the temporal
+classifier.  It uses the frozen U-Net output probability map as a spatial prior.
+
+1. Frozen U-Net inference
+   - checkpoint: models/segmentation/unet_water_v2.pth;
+   - seven channels at 1, 3, 5, 7, 10, 15 and 20 seconds;
+   - preprocessing: frame0 subtraction, clip below zero, global maximum
+     normalisation over 0..20 seconds, then Otsu/morphological panel ROI;
+   - output: one soft defect probability P(x, y) in [0, 1].
+
+2. Earlier ROI BiLSTM experiments (001--018)
+   - each cell ROI received two channels at every time point:
+       thermal ROI, segmentation mask;
+   - mask-guided pooling multiplied CNN features by the mask before spatial
+     averaging, so background could not dominate the temporal water-level
+     classifier;
+   - first controlled runs used label-derived masks; after the documented
+     preprocessing was supplied, frozen U-Net masks became valid for use.
+
+3. Current full-frame ConvGRU experiment (020 and suite 021--029)
+   - 60 full frames at 0.5-second spacing through the first 30 seconds;
+   - each full-frame input has two channels:
+       thermal(t, x, y), frozen U-Net probability P(x, y);
+   - P is repeated over time because U-Net is based on its fixed early-time
+     seven-frame stack;
+   - the residual CNN and ConvGRU compare thermal behaviour everywhere while
+     seeing which pixels belong to likely defect segments;
+   - output is a 7-class semantic map: background plus water20..water120.
+
+Measured frozen U-Net quality with the documented preprocessing
+---------------------------------------------------------------
+Held-out water4: Dice 0.8597, IoU 0.7539, precision 1.0000, recall 0.7539.
+
+How latent features can be added next
+-------------------------------------
+The U-Net bottleneck e4 (256 channels at H/8 x W/8) and/or decoder features
+d3/d2 contain richer geometry than P(x, y).  A proper latent-feature variant
+would freeze the U-Net, return e4/d3, project them with a 1x1 convolution, and
+concatenate the projected map with each ConvGRU encoder feature map.  This is
+different from the current mask-only conditioning and needs a separate atomic
+ablation experiment: mask-only vs e4-only vs mask+e4, on the same video split.
+

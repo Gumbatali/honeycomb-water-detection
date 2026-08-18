@@ -1,0 +1,11 @@
+CUDA structural smoke test
+==========================
+
+Command:
+  /home/votter/miniconda3/envs/studcamp/bin/python train.py --epochs 1 --output-dir artifacts_smoke
+
+Result: completed successfully on RTX 4060 Laptop GPU without out-of-memory.
+The test validates the 60-frame, 240x320 full-image data path, frozen U-Net
+soft-mask input, ConvGRU forward/backward pass and semantic loss.  Its one
+epoch macro-IoU is not a model-quality result.  Run ./run_cuda.sh for the
+configured 100-epoch experiment.

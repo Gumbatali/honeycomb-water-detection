@@ -1,0 +1,14 @@
+Result: frozen U-Net feature pyramid + ConvGRU hidden 96
+==========================================================
+
+Run completed with early stopping after 32 of 80 allowed epochs.
+
+Best validation checkpoint: epoch 12
+  macro-IoU:    0.4736
+  macro-Dice:   0.5272
+  ordinal MAE:  1.0077
+
+Train data: water1/water2 plus flip, aggressive rotation and aggressive affine.
+Validation: unchanged water4.  This is a hyperparameter-screening result, not
+a final generalisation estimate because water4 guides selection.
+

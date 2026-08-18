@@ -1,0 +1,36 @@
+Mask-guided BiLSTM CUDA screening summary
+==========================================
+
+Data protocol
+-------------
+Input is a 96 x 96 ROI for a segmented cell: thermal response relative to
+pre-heating baseline plus the segmentation mask as the second channel.  A
+per-frame CNN and mask-guided pooling feed a bidirectional LSTM.  The head
+predicts six ordered water levels using five ordinal logits.
+
+Independent unit: video.  Training uses water1 and water2 (12 cell sequences)
+and validation uses water4 (6 cell sequences).  Frames are never randomly
+split between train and validation.
+
+CUDA runs on RTX 4060 Laptop GPU
+--------------------------------
+  Experiment   AdamW LR   Best epoch   Macro-F1   Accuracy   Level MAE
+  002          1e-3       10           0.2778     0.3333     1.1667
+  003          3e-4        7           0.2222     0.3333     1.1667
+
+Selected screening configuration
+--------------------------------
+Use experiment 002 checkpoint: artifacts/best.pt.  It has hidden size 64,
+dropout 0.10, batch size 4, weight decay 1e-4 and 32 frames in [20, 500].
+Although each job ran for 20 epochs, use the validation-selected epoch 10;
+later epochs overfit.
+
+Interpretation limits and next experiment
+-----------------------------------------
+This dataset has only three independent recordings.  The reported water4
+metric was used to choose the LR and checkpoint, so it is not a final test
+result.  In addition, these controlled runs use label-derived binary masks to
+isolate classification.  The next atomic experiment must derive cell masks
+from frozen unet_water_v2.pth, then compare it against this baseline on a new
+video not used for model selection.
+

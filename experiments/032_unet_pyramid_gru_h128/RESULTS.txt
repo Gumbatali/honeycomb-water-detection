@@ -1,0 +1,14 @@
+Result: frozen U-Net feature pyramid + ConvGRU hidden 128
+==========================================================
+
+Run completed with early stopping after 41 of 80 allowed epochs.
+
+Best validation checkpoint: epoch 21
+  macro-IoU:    0.6246
+  macro-Dice:   0.6325
+  ordinal MAE:  1.0550
+
+Compared with hidden 96, 128 channels substantially improve semantic overlap
+(macro-IoU 0.4736 -> 0.6246), while ordinal MAE is slightly higher.  This is
+the current leading configuration before testing stronger regularisation.
+

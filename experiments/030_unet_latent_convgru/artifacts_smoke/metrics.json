@@ -1,0 +1,29 @@
+{
+  "architecture": "frozen U-Net e4+d3 latent fusion + ConvGRU",
+  "args": {
+    "epochs": 1,
+    "lr": 0.0002,
+    "weight_decay": 0.0001,
+    "hidden": 160,
+    "layers": 2,
+    "dropout": 0.1,
+    "use_d3": true,
+    "train_video": "water1",
+    "valid_video": "water2",
+    "output_dir": "artifacts_smoke",
+    "unet_checkpoint": "/home/votter/projects/honeycomb-water-detection/models/segmentation/v1/unet_water_v2.pth"
+  },
+  "best_validation": {
+    "macro_iou": 0.0023416103508292208,
+    "epoch": 1,
+    "lr": 0.0002
+  },
+  "history": [
+    {
+      "macro_iou": 0.0023416103508292208,
+      "epoch": 1,
+      "lr": 0.0002
+    }
+  ],
+  "epochs_ran": 1
+}

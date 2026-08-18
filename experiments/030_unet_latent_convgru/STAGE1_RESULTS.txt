@@ -1,0 +1,10 @@
+Stage 1 result: select U-Net latent level
+==========================================
+
+  Configuration    Best validation water2 macro-IoU   Best epoch   Epochs run
+  e4 only          0.0743                             13           28
+  e4+d3            0.0597                              4           19
+
+Decision: e4 only.  The d3 decoder feature map is excluded from all subsequent
+GRU hyperparameter trials.  water4 remains untouched.
+

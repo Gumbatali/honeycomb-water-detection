@@ -1,0 +1,42 @@
+Experiment 042 result
+=====================
+
+Neutral-canvas independent cell permutations with local defect-contrast gains
+from 0.90 to 1.10.  Fresh U-Net v1 pyramid ConvGRU with ROI and pixel-peak
+temporal normalization.  Early stopped at epoch 80; best epoch 50.
+
+Best water2 metrics:
+  macro-IoU:   0.4092
+  macro-Dice:  0.4545
+  ordinal MAE: 0.8194
+
+Per-class IoU:
+  water20:  0.9458
+  water40:  0.8123
+  water60:  0.2877
+  water80:  0.0000
+  water100: 0.0000
+
+Comparison
+----------
+041, no local gain: macro-IoU 0.4078, best epoch 29.
+042, +/-10% gain:   macro-IoU 0.4092, best epoch 50.
+
+Local gain gives a small +0.0013 absolute macro-IoU improvement and slightly
+better water60 IoU (0.2354 -> 0.2877), while water40 drops modestly.  Its main
+benefit is radiometric robustness rather than a large validation gain.  The
+measured water2 5-second response is 7.9% higher than water1, so the chosen gain
+range is physically relevant.
+
+The validation image shows accurate ROI-constrained segmentation and correct
+water20/water40 labels.  Both high-water cells are mapped mostly to water60,
+indicating that categorical CE+Dice still does not exploit ordinal water-level
+structure.  The next architecture/loss change should add an ordinal term or a
+separate per-cell temporal regressor while keeping the full-frame segmentation
+branch.
+
+neutral_water1 remains unchanged and available as the canvas for additional
+patching variants.
+
+Artifacts: artifacts/best.pt, metrics.json, summary.txt,
+training_dynamics.png, water2_validation.png, water2_confusion_matrix.json.

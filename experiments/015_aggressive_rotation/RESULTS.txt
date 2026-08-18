@@ -1,0 +1,15 @@
+100-epoch CUDA BiLSTM result
+=============================
+
+Train: original water1/water2 plus +15-degree rotations (24 sequences).
+Validation: unchanged water4 (6 sequences).  RTX 4060 Laptop GPU.
+
+Best checkpoint: epoch 37 of 100
+  macro-F1: 0.5556
+  accuracy: 0.6667
+  level MAE: 0.6667
+  BCE loss: 0.5479
+
+The validation curve plateaued after approximately epoch 37; later epochs did
+not improve the selected metric.  Use artifacts/best.pt.
+

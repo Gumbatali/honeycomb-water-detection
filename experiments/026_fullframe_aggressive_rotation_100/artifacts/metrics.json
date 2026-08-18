@@ -1,0 +1,578 @@
+{
+  "architecture": "full-frame mask-conditioned ConvGRU",
+  "temporal_frames": [
+    0,
+    5,
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70,
+    75,
+    80,
+    85,
+    90,
+    95,
+    100,
+    105,
+    110,
+    115,
+    120,
+    125,
+    130,
+    135,
+    140,
+    145,
+    150,
+    155,
+    160,
+    165,
+    170,
+    175,
+    180,
+    185,
+    190,
+    195,
+    200,
+    205,
+    210,
+    215,
+    220,
+    225,
+    230,
+    235,
+    240,
+    245,
+    250,
+    255,
+    260,
+    265,
+    270,
+    275,
+    280,
+    285,
+    290,
+    295
+  ],
+  "seconds": 30,
+  "train_sequences": 4,
+  "train_augmentations": [
+    "015_aggressive_rotation"
+  ],
+  "initialisation": null,
+  "best_validation": {
+    "macro_iou": 0.2062708123750081,
+    "pixel_accuracy": 0.9389192708333334,
+    "epoch": 86
+  },
+  "history": [
+    {
+      "macro_iou": 0.0,
+      "pixel_accuracy": 0.9075911458333333,
+      "epoch": 1
+    },
+    {
+      "macro_iou": 0.0,
+      "pixel_accuracy": 0.9075911458333333,
+      "epoch": 2
+    },
+    {
+      "macro_iou": 0.0,
+      "pixel_accuracy": 0.9075911458333333,
+      "epoch": 3
+    },
+    {
+      "macro_iou": 0.0,
+      "pixel_accuracy": 0.9075911458333333,
+      "epoch": 4
+    },
+    {
+      "macro_iou": 0.0,
+      "pixel_accuracy": 0.9075911458333333,
+      "epoch": 5
+    },
+    {
+      "macro_iou": 0.0,
+      "pixel_accuracy": 0.9075911458333333,
+      "epoch": 6
+    },
+    {
+      "macro_iou": 0.0,
+      "pixel_accuracy": 0.9075911458333333,
+      "epoch": 7
+    },
+    {
+      "macro_iou": 0.0,
+      "pixel_accuracy": 0.9075911458333333,
+      "epoch": 8
+    },
+    {
+      "macro_iou": 0.025718257645968492,
+      "pixel_accuracy": 0.9119270833333334,
+      "epoch": 9
+    },
+    {
+      "macro_iou": 0.03767086427725756,
+      "pixel_accuracy": 0.9160026041666667,
+      "epoch": 10
+    },
+    {
+      "macro_iou": 0.03666897773669209,
+      "pixel_accuracy": 0.9189973958333333,
+      "epoch": 11
+    },
+    {
+      "macro_iou": 0.06237744552722526,
+      "pixel_accuracy": 0.9219791666666667,
+      "epoch": 12
+    },
+    {
+      "macro_iou": 0.05053421888535952,
+      "pixel_accuracy": 0.9210286458333333,
+      "epoch": 13
+    },
+    {
+      "macro_iou": 0.012476718754227041,
+      "pixel_accuracy": 0.9102213541666667,
+      "epoch": 14
+    },
+    {
+      "macro_iou": 0.03239781002498272,
+      "pixel_accuracy": 0.9134765625,
+      "epoch": 15
+    },
+    {
+      "macro_iou": 0.07071466262372207,
+      "pixel_accuracy": 0.9152734375,
+      "epoch": 16
+    },
+    {
+      "macro_iou": 0.02840486807878112,
+      "pixel_accuracy": 0.9129166666666667,
+      "epoch": 17
+    },
+    {
+      "macro_iou": 0.04582081452987216,
+      "pixel_accuracy": 0.9124348958333334,
+      "epoch": 18
+    },
+    {
+      "macro_iou": 0.15900265260087057,
+      "pixel_accuracy": 0.9277734375,
+      "epoch": 19
+    },
+    {
+      "macro_iou": 0.1524728172607225,
+      "pixel_accuracy": 0.9234895833333333,
+      "epoch": 20
+    },
+    {
+      "macro_iou": 0.13060340196641843,
+      "pixel_accuracy": 0.9252473958333334,
+      "epoch": 21
+    },
+    {
+      "macro_iou": 0.15153748563761474,
+      "pixel_accuracy": 0.931796875,
+      "epoch": 22
+    },
+    {
+      "macro_iou": 0.15995029172424383,
+      "pixel_accuracy": 0.9315885416666667,
+      "epoch": 23
+    },
+    {
+      "macro_iou": 0.1458078817989731,
+      "pixel_accuracy": 0.9281119791666667,
+      "epoch": 24
+    },
+    {
+      "macro_iou": 0.18207292792639218,
+      "pixel_accuracy": 0.9316927083333333,
+      "epoch": 25
+    },
+    {
+      "macro_iou": 0.12020961561757267,
+      "pixel_accuracy": 0.9269921875,
+      "epoch": 26
+    },
+    {
+      "macro_iou": 0.0423888161918928,
+      "pixel_accuracy": 0.91765625,
+      "epoch": 27
+    },
+    {
+      "macro_iou": 0.0980777539721819,
+      "pixel_accuracy": 0.9158463541666667,
+      "epoch": 28
+    },
+    {
+      "macro_iou": 0.009551691506978944,
+      "pixel_accuracy": 0.9061197916666667,
+      "epoch": 29
+    },
+    {
+      "macro_iou": 0.011020865414999135,
+      "pixel_accuracy": 0.9076041666666667,
+      "epoch": 30
+    },
+    {
+      "macro_iou": 0.01599243545469495,
+      "pixel_accuracy": 0.9076953125,
+      "epoch": 31
+    },
+    {
+      "macro_iou": 0.09325099742462199,
+      "pixel_accuracy": 0.9168489583333334,
+      "epoch": 32
+    },
+    {
+      "macro_iou": 0.10770365460955565,
+      "pixel_accuracy": 0.917734375,
+      "epoch": 33
+    },
+    {
+      "macro_iou": 0.15191828921837044,
+      "pixel_accuracy": 0.929765625,
+      "epoch": 34
+    },
+    {
+      "macro_iou": 0.14121048601464933,
+      "pixel_accuracy": 0.93109375,
+      "epoch": 35
+    },
+    {
+      "macro_iou": 0.13799877518663428,
+      "pixel_accuracy": 0.9278255208333334,
+      "epoch": 36
+    },
+    {
+      "macro_iou": 0.1300903257777606,
+      "pixel_accuracy": 0.9220703125,
+      "epoch": 37
+    },
+    {
+      "macro_iou": 0.15599533666387225,
+      "pixel_accuracy": 0.924140625,
+      "epoch": 38
+    },
+    {
+      "macro_iou": 0.14622354831911452,
+      "pixel_accuracy": 0.9293880208333334,
+      "epoch": 39
+    },
+    {
+      "macro_iou": 0.2023120473204105,
+      "pixel_accuracy": 0.9393098958333334,
+      "epoch": 40
+    },
+    {
+      "macro_iou": 0.19241440423722186,
+      "pixel_accuracy": 0.9370833333333334,
+      "epoch": 41
+    },
+    {
+      "macro_iou": 0.15784661763570432,
+      "pixel_accuracy": 0.9272526041666667,
+      "epoch": 42
+    },
+    {
+      "macro_iou": 0.17389477861092653,
+      "pixel_accuracy": 0.9337890625,
+      "epoch": 43
+    },
+    {
+      "macro_iou": 0.16246539401077206,
+      "pixel_accuracy": 0.9293229166666667,
+      "epoch": 44
+    },
+    {
+      "macro_iou": 0.1364351600428889,
+      "pixel_accuracy": 0.9230989583333333,
+      "epoch": 45
+    },
+    {
+      "macro_iou": 0.13889864396275695,
+      "pixel_accuracy": 0.9239322916666667,
+      "epoch": 46
+    },
+    {
+      "macro_iou": 0.13943770685269471,
+      "pixel_accuracy": 0.923828125,
+      "epoch": 47
+    },
+    {
+      "macro_iou": 0.15397545944353735,
+      "pixel_accuracy": 0.9259505208333333,
+      "epoch": 48
+    },
+    {
+      "macro_iou": 0.14183469561542922,
+      "pixel_accuracy": 0.9255859375,
+      "epoch": 49
+    },
+    {
+      "macro_iou": 0.1451230224365917,
+      "pixel_accuracy": 0.9268359375,
+      "epoch": 50
+    },
+    {
+      "macro_iou": 0.16403278456730974,
+      "pixel_accuracy": 0.926953125,
+      "epoch": 51
+    },
+    {
+      "macro_iou": 0.185257729537187,
+      "pixel_accuracy": 0.9254166666666667,
+      "epoch": 52
+    },
+    {
+      "macro_iou": 0.16053146665339357,
+      "pixel_accuracy": 0.9279166666666666,
+      "epoch": 53
+    },
+    {
+      "macro_iou": 0.16855282946438477,
+      "pixel_accuracy": 0.9268619791666667,
+      "epoch": 54
+    },
+    {
+      "macro_iou": 0.1592384880847317,
+      "pixel_accuracy": 0.9246484375,
+      "epoch": 55
+    },
+    {
+      "macro_iou": 0.20196770580496393,
+      "pixel_accuracy": 0.9313411458333334,
+      "epoch": 56
+    },
+    {
+      "macro_iou": 0.19123280084657548,
+      "pixel_accuracy": 0.93046875,
+      "epoch": 57
+    },
+    {
+      "macro_iou": 0.07953267738170235,
+      "pixel_accuracy": 0.9195833333333333,
+      "epoch": 58
+    },
+    {
+      "macro_iou": 0.1407675260447265,
+      "pixel_accuracy": 0.9307552083333334,
+      "epoch": 59
+    },
+    {
+      "macro_iou": 0.19966581224548438,
+      "pixel_accuracy": 0.9407942708333333,
+      "epoch": 60
+    },
+    {
+      "macro_iou": 0.1937987259876662,
+      "pixel_accuracy": 0.932421875,
+      "epoch": 61
+    },
+    {
+      "macro_iou": 0.09849618259073963,
+      "pixel_accuracy": 0.9180989583333333,
+      "epoch": 62
+    },
+    {
+      "macro_iou": 0.058688840226906465,
+      "pixel_accuracy": 0.9138932291666667,
+      "epoch": 63
+    },
+    {
+      "macro_iou": 0.009693778346379493,
+      "pixel_accuracy": 0.908828125,
+      "epoch": 64
+    },
+    {
+      "macro_iou": 0.14046703720924067,
+      "pixel_accuracy": 0.9285677083333334,
+      "epoch": 65
+    },
+    {
+      "macro_iou": 0.17533914235847356,
+      "pixel_accuracy": 0.9334505208333334,
+      "epoch": 66
+    },
+    {
+      "macro_iou": 0.10687992936823056,
+      "pixel_accuracy": 0.9178515625,
+      "epoch": 67
+    },
+    {
+      "macro_iou": 0.1298355597518445,
+      "pixel_accuracy": 0.9202604166666667,
+      "epoch": 68
+    },
+    {
+      "macro_iou": 0.13348379223580537,
+      "pixel_accuracy": 0.9274088541666666,
+      "epoch": 69
+    },
+    {
+      "macro_iou": 0.14896295986883024,
+      "pixel_accuracy": 0.9333333333333333,
+      "epoch": 70
+    },
+    {
+      "macro_iou": 0.1733962079958984,
+      "pixel_accuracy": 0.940625,
+      "epoch": 71
+    },
+    {
+      "macro_iou": 0.13333337534402942,
+      "pixel_accuracy": 0.9306770833333333,
+      "epoch": 72
+    },
+    {
+      "macro_iou": 0.09115773139973471,
+      "pixel_accuracy": 0.9208333333333333,
+      "epoch": 73
+    },
+    {
+      "macro_iou": 0.07641803993330185,
+      "pixel_accuracy": 0.9204557291666666,
+      "epoch": 74
+    },
+    {
+      "macro_iou": 0.019689316919518335,
+      "pixel_accuracy": 0.9127864583333334,
+      "epoch": 75
+    },
+    {
+      "macro_iou": 0.05702593968748241,
+      "pixel_accuracy": 0.9189192708333334,
+      "epoch": 76
+    },
+    {
+      "macro_iou": 0.15473669770028112,
+      "pixel_accuracy": 0.9325390625,
+      "epoch": 77
+    },
+    {
+      "macro_iou": 0.16661274023113576,
+      "pixel_accuracy": 0.9382291666666667,
+      "epoch": 78
+    },
+    {
+      "macro_iou": 0.16237897492702458,
+      "pixel_accuracy": 0.9387239583333333,
+      "epoch": 79
+    },
+    {
+      "macro_iou": 0.17153446709478296,
+      "pixel_accuracy": 0.9370572916666666,
+      "epoch": 80
+    },
+    {
+      "macro_iou": 0.1896678419069344,
+      "pixel_accuracy": 0.9390104166666666,
+      "epoch": 81
+    },
+    {
+      "macro_iou": 0.19460327111599654,
+      "pixel_accuracy": 0.9392317708333333,
+      "epoch": 82
+    },
+    {
+      "macro_iou": 0.19891187538737,
+      "pixel_accuracy": 0.9389583333333333,
+      "epoch": 83
+    },
+    {
+      "macro_iou": 0.2014076890053721,
+      "pixel_accuracy": 0.9386067708333333,
+      "epoch": 84
+    },
+    {
+      "macro_iou": 0.20046041545749219,
+      "pixel_accuracy": 0.938125,
+      "epoch": 85
+    },
+    {
+      "macro_iou": 0.2062708123750081,
+      "pixel_accuracy": 0.9389192708333334,
+      "epoch": 86
+    },
+    {
+      "macro_iou": 0.19903624670647735,
+      "pixel_accuracy": 0.9382942708333334,
+      "epoch": 87
+    },
+    {
+      "macro_iou": 0.19749365411715547,
+      "pixel_accuracy": 0.9380729166666667,
+      "epoch": 88
+    },
+    {
+      "macro_iou": 0.19530078854792232,
+      "pixel_accuracy": 0.9381770833333334,
+      "epoch": 89
+    },
+    {
+      "macro_iou": 0.19079292759501235,
+      "pixel_accuracy": 0.9377213541666667,
+      "epoch": 90
+    },
+    {
+      "macro_iou": 0.19365584275090506,
+      "pixel_accuracy": 0.9377864583333333,
+      "epoch": 91
+    },
+    {
+      "macro_iou": 0.1853149815397328,
+      "pixel_accuracy": 0.9363541666666667,
+      "epoch": 92
+    },
+    {
+      "macro_iou": 0.16297710881112693,
+      "pixel_accuracy": 0.9352083333333333,
+      "epoch": 93
+    },
+    {
+      "macro_iou": 0.15441834221468037,
+      "pixel_accuracy": 0.9347916666666667,
+      "epoch": 94
+    },
+    {
+      "macro_iou": 0.17463678159080623,
+      "pixel_accuracy": 0.9382161458333333,
+      "epoch": 95
+    },
+    {
+      "macro_iou": 0.19522326179889218,
+      "pixel_accuracy": 0.93953125,
+      "epoch": 96
+    },
+    {
+      "macro_iou": 0.20243532804993616,
+      "pixel_accuracy": 0.9383984375,
+      "epoch": 97
+    },
+    {
+      "macro_iou": 0.19511209301186758,
+      "pixel_accuracy": 0.93640625,
+      "epoch": 98
+    },
+    {
+      "macro_iou": 0.1928707540317269,
+      "pixel_accuracy": 0.9367317708333334,
+      "epoch": 99
+    },
+    {
+      "macro_iou": 0.18503718682062778,
+      "pixel_accuracy": 0.938125,
+      "epoch": 100
+    }
+  ]
+}

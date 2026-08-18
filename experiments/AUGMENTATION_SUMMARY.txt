@@ -1,0 +1,37 @@
+Label-aware video augmentation summary
+======================================
+
+Created virtual videos: 15
+  3 source videos x 5 augmentation experiments
+
+Experiment                  Transform                         Label handling
+010_rotation                +6 degree rotation                nearest-neighbour mask + transformed bbox
+011_horizontal_flip         left-right reflection              reflected mask + reflected bbox
+012_geometric_affine        -4 degree, 0.98 scale, shear       affine mask + affine bbox
+013_background_patching     four 12x12 background bias patches mask and bbox unchanged by design
+014_defect_location_shift   +8 px x, -6 px y                  translated mask + translated bbox
+
+All geometric parameters are fixed per generated video and do not vary from
+frame to frame.  Thus the thermal curve of every material point is preserved;
+only its spatial location/view changes.  Class IDs are never interpolated:
+semantic masks are warped with nearest-neighbour interpolation while thermal
+frames are warped linearly.
+
+Locations
+---------
+  manifests: data/synthetic/video_augmentation_manifests/<experiment>/
+  QA plots:  experiments/<experiment>/plots/
+
+The manifests contain source_video, transform parameters, transformed cells
+with bbox_xyxy, and, for patching, deterministic patch coordinates.  They are
+virtual videos to avoid storing approximately 27 GB of duplicated 3000-frame
+arrays.  To materialize all image/mask frames deliberately:
+
+  /home/votter/miniconda3/envs/studcamp/bin/python \
+    scripts/create_video_augmentation_experiments.py --materialize
+
+This writes transformed images and semantic masks together under
+data/honeycomb/synthetic/materialized/.  Do not materialize a train/validation source
+onto the other side of a video-level split: an augmentation of water1 or
+water2 belongs only to training, and an augmentation of water4 only to
+validation/test.

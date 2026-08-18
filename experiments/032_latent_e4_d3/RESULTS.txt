@@ -1,0 +1,11 @@
+Stage-1 latent ablation result
+==============================
+
+Frozen U-Net v1 features: e4 + d3.  No U-Net mask.
+Tuning split: train water1 + all augmentations; validation water2.
+
+Early stopping: epoch 19 of 50 cap.
+Best validation checkpoint: epoch 4, macro-IoU 0.0597.
+
+This is worse than e4-only (0.0743), so d3 is excluded from the GRU search.
+

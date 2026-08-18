@@ -1,0 +1,109 @@
+{
+  "architecture": "frozen U-Net e4+d3 latent fusion + ConvGRU",
+  "args": {
+    "epochs": 50,
+    "lr": 0.0002,
+    "weight_decay": 0.0001,
+    "hidden": 160,
+    "layers": 1,
+    "dropout": 0.0,
+    "use_d3": false,
+    "train_video": "water1",
+    "valid_video": "water2",
+    "output_dir": "/home/votter/projects/honeycomb-water-detection/experiments/034_latent_gru_1x160/artifacts",
+    "unet_checkpoint": "/home/votter/projects/honeycomb-water-detection/models/segmentation/v1/unet_water_v2.pth"
+  },
+  "best_validation": {
+    "macro_iou": 0.02550444383842046,
+    "epoch": 2,
+    "lr": 0.0002
+  },
+  "history": [
+    {
+      "macro_iou": 0.002380642361111111,
+      "epoch": 1,
+      "lr": 0.0002
+    },
+    {
+      "macro_iou": 0.02550444383842046,
+      "epoch": 2,
+      "lr": 0.0002
+    },
+    {
+      "macro_iou": 0.025936325419547778,
+      "epoch": 3,
+      "lr": 0.0002
+    },
+    {
+      "macro_iou": 0.021772795033152163,
+      "epoch": 4,
+      "lr": 0.0002
+    },
+    {
+      "macro_iou": 0.014065995784655588,
+      "epoch": 5,
+      "lr": 0.0002
+    },
+    {
+      "macro_iou": 0.023198227551153392,
+      "epoch": 6,
+      "lr": 0.0002
+    },
+    {
+      "macro_iou": 0.023740216055372274,
+      "epoch": 7,
+      "lr": 0.0002
+    },
+    {
+      "macro_iou": 0.015618642568208024,
+      "epoch": 8,
+      "lr": 0.0002
+    },
+    {
+      "macro_iou": 0.015968396324525527,
+      "epoch": 9,
+      "lr": 0.0002
+    },
+    {
+      "macro_iou": 0.005398252099348512,
+      "epoch": 10,
+      "lr": 0.0002
+    },
+    {
+      "macro_iou": 0.008893280632411066,
+      "epoch": 11,
+      "lr": 0.0002
+    },
+    {
+      "macro_iou": 0.008074534161490683,
+      "epoch": 12,
+      "lr": 0.0002
+    },
+    {
+      "macro_iou": 0.020621802738628157,
+      "epoch": 13,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.0066647480719307225,
+      "epoch": 14,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.02608778732885164,
+      "epoch": 15,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.017393128749555054,
+      "epoch": 16,
+      "lr": 0.0001
+    },
+    {
+      "macro_iou": 0.022951347004423,
+      "epoch": 17,
+      "lr": 0.0001
+    }
+  ],
+  "epochs_ran": 17
+}

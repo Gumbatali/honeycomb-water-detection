@@ -1,0 +1,5 @@
+device: cuda
+best_epoch: 9
+macro_f1: 0.3611
+accuracy: 0.5000
+level_mae: 0.6667

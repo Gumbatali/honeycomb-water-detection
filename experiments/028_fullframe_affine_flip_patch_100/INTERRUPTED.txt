@@ -1,0 +1,5 @@
+Training was intentionally stopped by the user before completion.
+
+The partial artifacts in this directory must not be interpreted as a completed
+experiment or compared with completed runs.  Resume later by rerunning this
+stage from its prescribed initial checkpoint.

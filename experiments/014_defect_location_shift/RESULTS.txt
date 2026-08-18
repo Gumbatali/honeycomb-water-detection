@@ -1,0 +1,16 @@
+CUDA BiLSTM training result
+===========================
+
+Completed 40 epochs on RTX 4060 Laptop GPU.  Train data: original water1 and
+water2 plus their translated copies (24 cell sequences).  Validation: unchanged
+water4 (6 sequences).
+
+Best validation checkpoint: epoch 21
+  macro-F1: 0.4444
+  accuracy: 0.5000
+  level MAE: 0.8333
+  BCE loss: 0.5865
+
+Use artifacts/best.pt, not the epoch-40 weights.  This is the best augmentation
+screening run, but it remains a validation result on one held-out video.
+

@@ -1,0 +1,12 @@
+Full-frame augmentation suite
+=============================
+
+run_fullframe_suite.sh repeats the nine previous augmentation experiments with
+the new full-panel ConvGRU.  Each run receives all 60 frames at 0.5-second
+spacing through the first 30 seconds and the frozen U-Net probability map.
+Outputs are atomic directories experiments/021... through experiments/029....
+Each directory receives RUN.txt (exact command and protocol), train.log,
+artifacts/metrics.json, artifacts/summary.txt, best.pt and a water4 prediction
+diagram.  The suite is sequential because every run needs the same GPU; stages
+028 and 029 initialise from the preceding stage's selected checkpoint.
+

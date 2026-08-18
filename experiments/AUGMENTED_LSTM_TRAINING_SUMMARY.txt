@@ -1,0 +1,33 @@
+40-epoch CUDA LSTM augmentation training summary
+=================================================
+
+Protocol
+--------
+For each experiment, training contains original water1/water2 and only the
+corresponding augmentation of those videos: 24 labelled cell sequences total.
+Validation is always the unaugmented water4 video (6 sequences).  This avoids
+cross-video leakage.  Model: mask-guided CNN + bidirectional LSTM (hidden 64)
+with ordinal six-level water head.  Each run completed 40 epochs; best.pt is
+chosen by validation macro-F1.
+
+Experiment                 Best epoch   Macro-F1   Accuracy   Level MAE
+010_rotation               26           0.2333     0.3333     1.6667
+011_horizontal_flip        21           0.3889     0.5000     1.0000
+012_geometric_affine       18           0.3333     0.5000     1.1667
+013_background_patching     9           0.3611     0.5000     0.6667
+014_defect_location_shift  21           0.4444     0.5000     0.8333
+
+Selection
+---------
+The location-shift augmentation (014) has the highest macro-F1 and is the
+current candidate checkpoint: experiments/014_defect_location_shift/artifacts/best.pt.
+Patching produces the lowest ordinal MAE but lower macro-F1; it is useful as a
+robustness augmentation, not the selected standalone classifier.
+
+Limit
+-----
+Only three independent videos exist.  water4 guided both model selection and
+the augmentation comparison, so these are validation-screening values, not a
+final generalisation estimate.  Evaluate the chosen checkpoint on a new video
+and use frozen predicted, rather than label-derived, segmentation masks.
+

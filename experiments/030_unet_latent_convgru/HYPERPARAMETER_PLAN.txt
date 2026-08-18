@@ -1,0 +1,70 @@
+Experiment 030: frozen U-Net latent features + full-frame ConvGRU
+==================================================================
+
+Scope reset
+-----------
+Experiments 001--029 remain on disk only as historical artifacts.  They are
+not candidates for this architecture selection.  In particular, experiment
+020 used a U-Net probability mask and is NOT the new baseline.
+
+New input fusion
+----------------
+Frozen U-Net receives its documented early-time seven-frame input at
+1/3/5/7/10/15/20 seconds.  Instead of output sigmoid(mask), extract:
+
+  e4: 256 channels, H/8 x W/8, semantically rich bottleneck features;
+  d3: 128 channels, H/4 x W/4, decoder features carrying finer boundaries.
+
+Both are projected with 1x1 convolutions, brought to the ConvGRU resolution
+(H/8 x W/8), concatenated with the thermal-frame encoder feature and fused by
+a residual 3x3 block.  No binary or soft mask is an input to the new model.
+
+Checkpoint lock: models/segmentation/v1/unet_water_v2.pth.  On the documented
+water4 preprocessing protocol it measured Dice 0.8597 and IoU 0.7539; v2 is
+not used in this series.
+
+Temporal model
+--------------
+The thermal branch sees the complete panel at 240x320 for 60 equally-spaced
+points (0, 0.5, ..., 29.5 seconds).  The initial candidate is a two-layer
+ConvGRU: 160 channels in each layer, 3x3 gates, spatial dropout 0.10 between
+layers.  It predicts background + six water levels as a full semantic map.
+
+Why this configuration
+----------------------
+One recurrent layer is the safest small-data baseline.  Two layers are the
+largest configuration worth testing here because there are only three original
+videos; deeper recurrent stacks increase capacity faster than independent
+evidence.  PyTorch documents stacked GRUs as successive layers and applies
+dropout only between layers, which is the reason dropout is meaningful only in
+the two-layer candidate.  For convolutional features, 3x3 ConvGRU gates retain
+spatial topology instead of flattening the panel.
+
+Search protocol: no test leakage
+---------------------------------
+1. Tune on train=water1 plus its augmentations, validation=water2.  water4 is
+   untouched during selection.
+2. Ablation A: e4 only; ablation B: e4+d3.  Select by macro-IoU over six water
+   classes, not pixel accuracy.
+3. For the selected latent fusion, run four controlled configurations:
+
+   ID   GRU layers/channels   dropout   lr       weight decay
+   A    1 x 128              0.00      3e-4     1e-4
+   B    1 x 160              0.00      2e-4     1e-4
+   C    2 x 160              0.10      2e-4     1e-4   <-- initial candidate
+   D    2 x 192              0.10      1e-4     5e-4
+
+Every tuning trial has a 50-epoch cap, ReduceLROnPlateau (factor 0.5, patience
+8, minimum LR 3e-6), and early stopping after 15 epochs without macro-IoU
+improvement.  This measures the plateau rather than assuming a fixed count.
+
+4. Retrain the winning configuration on water1+water2 plus their augmentations
+   for at most 100 epochs.  Use the median selected epoch from phase 3 as the
+   fixed training length, then evaluate water4 exactly once.
+
+Expected epoch range
+--------------------
+The previous full-frame trials reached their best validation epoch between 22
+and 86.  Therefore 50 epochs is enough to tune with early stopping; 100 is a
+safe final cap, not a target to always reach.  With a 15-epoch no-improvement
+rule, the expected selected checkpoint is likely in the 25--60 epoch range.

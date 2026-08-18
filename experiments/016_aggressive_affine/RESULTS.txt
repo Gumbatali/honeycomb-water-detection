@@ -1,0 +1,16 @@
+100-epoch CUDA BiLSTM result
+=============================
+
+Train: original water1/water2 plus aggressive affine copies (24 sequences).
+Validation: unchanged water4 (6 sequences).  RTX 4060 Laptop GPU.
+
+Best checkpoint: epoch 31 of 100
+  macro-F1: 0.5556
+  accuracy: 0.6667
+  level MAE: 0.5000
+  BCE loss: 0.4621
+
+The curve plateaued after epoch 31.  This has the same macro-F1 as aggressive
+rotation but the lower ordinal error, so it is the curriculum initialisation
+checkpoint.  Use artifacts/best.pt.
+

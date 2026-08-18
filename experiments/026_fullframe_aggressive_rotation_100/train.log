@@ -1,0 +1,11 @@
+epoch=001 macro_iou=0.0000 acc=0.9076
+epoch=010 macro_iou=0.0377 acc=0.9160
+epoch=020 macro_iou=0.1525 acc=0.9235
+epoch=030 macro_iou=0.0110 acc=0.9076
+epoch=040 macro_iou=0.2023 acc=0.9393
+epoch=050 macro_iou=0.1451 acc=0.9268
+epoch=060 macro_iou=0.1997 acc=0.9408
+epoch=070 macro_iou=0.1490 acc=0.9333
+epoch=080 macro_iou=0.1715 acc=0.9371
+epoch=090 macro_iou=0.1908 acc=0.9377
+epoch=100 macro_iou=0.1850 acc=0.9381

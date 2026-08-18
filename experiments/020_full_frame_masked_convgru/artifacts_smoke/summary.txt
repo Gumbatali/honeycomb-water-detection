@@ -1,0 +1,5 @@
+{
+  "macro_iou": 0.0,
+  "pixel_accuracy": 0.9075911458333333,
+  "epoch": 1
+}

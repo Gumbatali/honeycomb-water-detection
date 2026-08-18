@@ -1,0 +1,36 @@
+{
+  "architecture": "frozen U-Net e2/e3/e4 feature pyramid + ConvGRU",
+  "best_validation": {
+    "macro_iou": 0.011905093602715399,
+    "macro_dice": 0.021853489324185956,
+    "ordinal_mae": 2.0521222784253355,
+    "epoch": 1,
+    "lr": 0.000108
+  },
+  "epochs_completed": 1,
+  "train_sequences": 8,
+  "history": [
+    {
+      "macro_iou": 0.011905093602715399,
+      "macro_dice": 0.021853489324185956,
+      "ordinal_mae": 2.0521222784253355,
+      "epoch": 1,
+      "lr": 0.000108
+    }
+  ],
+  "hyperparameters": {
+    "hidden": 96,
+    "dropout": 0.1,
+    "lr": 0.0003,
+    "weight_decay": 0.0001,
+    "epochs": 1,
+    "patience": 1,
+    "output_dir": "artifacts_smoke",
+    "seed": 17,
+    "train_augmentation": [
+      "011_horizontal_flip",
+      "015_aggressive_rotation",
+      "016_aggressive_affine"
+    ]
+  }
+}

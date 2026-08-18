@@ -1,0 +1,4 @@
+Experiment 035_latent_gru_2x192
+Frozen U-Net v1 e4-only features; no mask, no d3.
+Tuning split: train=water1+all augmentations, validation=water2; water4 untouched.
+Command: /home/votter/miniconda3/envs/studcamp/bin/python /home/votter/projects/honeycomb-water-detection/experiments/030_unet_latent_convgru/train.py --epochs 50 --hidden 192 --layers 2 --dropout .10 --lr 1e-4 --weight-decay 5e-4

@@ -1,0 +1,4 @@
+Training was intentionally stopped by the user before completion.
+
+Do not treat partial artifacts as a completed result.  Resume this final stage
+only after deliberately rerunning it from the prescribed curriculum checkpoint.

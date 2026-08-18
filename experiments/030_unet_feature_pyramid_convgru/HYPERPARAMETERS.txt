@@ -1,0 +1,42 @@
+Selected hyperparameters and selection rule
+===========================================
+
+Base model (first run)
+----------------------
+  U-Net encoder: frozen e2/e3/e4 features from segmentation/v2
+  thermal sequence: 60 frames, frames 0,5,...,295 at 10 Hz (30 seconds)
+  thermal resolution: 192 x 256; U-Net features calculated at original 480 x 640
+  ConvGRU: 1 layer, 96 channels, 3 x 3 kernel
+  fusion: learned gated residual addition at three feature scales
+  decoder channels: 128 -> 96 -> 64 -> 7 classes
+  spatial dropout: 0.10 at recurrent bottleneck
+  loss: weighted CE (background 0.08, each water class 1.0) + 0.5 soft Dice
+  optimizer: AdamW, lr 3e-4, weight decay 1e-4
+  batch size: 1 video
+  gradient clip: 1.0
+  lr schedule: 5 epoch linear warm-up then cosine decay
+  maximum epochs: 120; early stopping patience 25 validation evaluations
+  checkpoint metric: validation macro-IoU across classes 1..6
+
+Why these values
+----------------
+One 3x3 ConvGRU layer is the safest starting capacity for only two independent
+training videos.  96 channels can represent temporal texture changes while
+keeping 60-step backpropagation practical on the RTX 4060.  A second recurrent
+layer is not the default because it adds temporal capacity without new videos.
+120 epochs is an upper bound, not a target: the previous runs plateaued by
+roughly 20--40 epochs, so early stopping prevents interpreting late overfit as
+convergence.
+
+Ordered ablations; change one factor at a time
+------------------------------------------------
+  A0: base above
+  A1: ConvGRU hidden 128 (tests whether more capacity helps)
+  A2: ConvGRU hidden 160 (only if A1 underfits)
+  A3: two ConvGRU layers, hidden 96 (only if A0 has a clear rising validation curve at epoch 80)
+  A4: unfreeze U-Net e4 only with lr 3e-5 (only after frozen A0)
+
+Run no more than these five configurations before obtaining new independent
+videos.  Select configuration on a separate calibration video if possible;
+with only water4, report the choice as validation screening rather than final
+test performance.

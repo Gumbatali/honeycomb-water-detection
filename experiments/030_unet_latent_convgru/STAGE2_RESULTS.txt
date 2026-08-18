@@ -1,0 +1,20 @@
+Stage 2 result: select ConvGRU capacity and optimiser
+======================================================
+
+All runs: frozen U-Net v1 e4-only features, no U-Net mask, full 240x320 panel,
+60 frames from 0 to 29.5 seconds, train water1 + all augmentations and validate
+on untouched water2.  Metric: macro-IoU over six water classes.
+
+  Experiment   GRU layers/channels   LR       WD       Best epoch   Macro-IoU
+  033          1 x 128              3e-4     1e-4     10           0.1364
+  034          1 x 160              2e-4     1e-4      2           0.0255
+  031          2 x 160              2e-4     1e-4     13           0.0743
+  035          2 x 192              1e-4     5e-4      8           0.0847
+
+Decision
+--------
+Use experiment 033: one 128-channel ConvGRU, lr=3e-4 and weight decay 1e-4.
+The larger recurrent models generalise worse on water2.  The final protocol is
+to train this exact model on water1+water2 plus synthetic variants for a fixed
+10 epochs (the selected epoch), then evaluate water4 once.
+

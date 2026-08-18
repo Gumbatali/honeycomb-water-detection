@@ -1,0 +1,16 @@
+100-epoch CUDA curriculum result
+================================
+
+Initialisation: best checkpoint from 016_aggressive_affine.  Fine-tuning train
+data: original water1/water2 plus aggressive affine, horizontal flip and
+background patching copies (48 sequences).  Validation: unchanged water4.
+
+Best checkpoint: epoch 16 of 100
+  macro-F1: 0.5556
+  accuracy: 0.6667
+  level MAE: 0.6667
+  BCE loss: 0.7237
+
+This curriculum did not improve macro-F1 over its affine initialisation and
+plateaued early.  Use artifacts/best.pt only for the documented next stage.
+

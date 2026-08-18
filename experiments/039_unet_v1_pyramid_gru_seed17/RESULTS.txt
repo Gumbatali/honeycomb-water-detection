@@ -1,0 +1,54 @@
+Experiment 039 result
+=====================
+
+Training completed automatically at epoch 61 after 30 epochs without a new
+macro-IoU maximum.  The best checkpoint is epoch 31, not an early epoch.
+
+Optimization dynamics
+---------------------
+Train loss: 2.2154 at epoch 1 -> 0.0171 at epoch 61.
+Minimum validation loss: 1.9842 at epoch 2.
+Validation loss at the macro-IoU checkpoint: 3.9066.
+Validation loss at epoch 61: 4.7652.
+Best validation macro-IoU: 0.1781 at epoch 31.
+
+This proves strong overfitting: training loss continues down while validation
+loss rises.  Hard macro-IoU remains noisy and peaks much later than validation
+loss, so the two criteria do not select the same checkpoint.
+
+Best-checkpoint per-class IoU
+-----------------------------
+water20:  0.8903
+water40:  0.0000
+water60:  0.0000
+water80:  0.0000
+water100: 0.0000
+
+Visual and confusion-matrix inspection
+--------------------------------------
+The model locates most rectangular defects, but learns a near-deterministic
+wrong permutation for four water classes on water2:
+  true water40  -> predicted water80 (93.4%)
+  true water60  -> predicted water100 (92.4%)
+  true water80  -> predicted water60 (95.2%)
+  true water100 -> predicted water40 (99.6%)
+
+It also predicts a large false defect on the reflection below the panel because
+the documented panel ROI is not applied in this training pipeline.
+
+Root cause and next experiment
+------------------------------
+The three existing patched videos translate all six cells as one rigid group,
+so their relative class positions never change.  They do not prevent spatial
+class memorization.  The next controlled augmentation must move each labelled
+cell independently/permutationally while preserving its complete thermal curve
+and mask label.
+
+FP16 diagnostic
+---------------
+U-Net v1 e3/e4 activations are roughly an order of magnitude larger than v2.
+FP16 produced NaN ConvGRU gradients and silently skipped every update.  BF16
+produced finite gradients and was used for this result.
+
+Artifacts: artifacts/best.pt, metrics.json, summary.txt,
+training_dynamics.png, water2_validation.png.

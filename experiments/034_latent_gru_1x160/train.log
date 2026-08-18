@@ -1,0 +1,3 @@
+epoch=001 macro_iou=0.0024 lr=2.0e-04
+epoch=010 macro_iou=0.0054 lr=2.0e-04
+early_stop=17

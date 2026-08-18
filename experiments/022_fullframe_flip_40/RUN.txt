@@ -1,0 +1,4 @@
+Full-frame ConvGRU experiment
+Command: /home/votter/miniconda3/envs/studcamp/bin/python /home/votter/projects/honeycomb-water-detection/experiments/020_full_frame_masked_convgru/train.py --epochs 40 --lr 3e-4 --train-augmentation 011_horizontal_flip
+Input: full 240x320 panel, 60 frames at 0.5 s over 30 s, frozen U-Net soft mask.
+Validation: unaugmented water4 only.

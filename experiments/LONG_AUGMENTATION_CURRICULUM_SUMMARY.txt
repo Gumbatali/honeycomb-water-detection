@@ -1,0 +1,32 @@
+100-epoch aggressive augmentation and curriculum summary
+=========================================================
+
+All runs use the same unchanged water4 validation video and select best.pt by
+validation macro-F1.  Each was allowed to complete 100 epochs to reveal its
+plateau; the selected checkpoint is not necessarily the final epoch.
+
+Experiment                         Best epoch   Macro-F1   Accuracy   Level MAE
+015_aggressive_rotation             37           0.5556     0.6667     0.6667
+016_aggressive_affine               31           0.5556     0.6667     0.5000
+017_affine_then_flip_patch          16           0.5556     0.6667     0.6667
+018_all_augmentations_curriculum    24           0.5556     0.6667     0.6667
+
+Decision
+--------
+Use experiment 016's best.pt as the current preferred model.  It equals the
+highest macro-F1 and has the lowest ordinal level error.  Aggressive rotation
+is an equally strong alternative by macro-F1.  Curriculum stages did not add
+held-out improvement, therefore do not use their final checkpoints merely
+because they saw more augmentations.
+
+Segmentation gate
+-----------------
+With the supplied documented preprocessing (1/3/5/7/10/15/20-second channels,
+frame0 correction, global normalisation and Otsu/morphology ROI), the frozen
+U-Net has held-out water4 Dice 0.8597 and IoU 0.7539.  It can now replace the
+label-derived mask in a next end-to-end classifier experiment.
+
+Statistical limit
+-----------------
+Only one independent validation video is available, and it guided all choices.
+These are screening results rather than final generalisation estimates.

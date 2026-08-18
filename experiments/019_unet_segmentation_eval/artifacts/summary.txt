@@ -1,0 +1,11 @@
+checkpoint: models/segmentation/unet_water_v2.pth
+held_out_video: water4
+frames_seconds: [1.0, 3.0, 5.0, 7.0, 10.0, 15.0, 20.0]
+preprocessing: frame0 subtract; clip; max over 0..20 s; Otsu ROI + close/fill/open/largest/erode12
+threshold: 0.5
+dice: 0.8596544042386658
+iou: 0.7538542766631467
+precision: 1.0
+recall: 0.7538542766631467
+per_video: {'water1': {'dice': 0.9208706228329733, 'iou': 0.8533458937523131, 'precision': 1.0, 'recall': 0.8533458937523131, 'roi_pixels': 102329}, 'water2': {'dice': 0.9436097130891591, 'iou': 0.8932396717206844, 'precision': 1.0, 'recall': 0.8932396717206844, 'roi_pixels': 93394}, 'water4': {'dice': 0.8596544042386658, 'iou': 0.7538542766631467, 'precision': 1.0, 'recall': 0.7538542766631467, 'roi_pixels': 93067}}
+device: cuda

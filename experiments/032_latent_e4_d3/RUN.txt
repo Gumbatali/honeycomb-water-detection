@@ -1,0 +1,4 @@
+Experiment 032_latent_e4_d3
+Frozen U-Net v1 latent features; no U-Net mask input.
+Tuning split: train=water1+all augmentations, validation=water2; water4 untouched.
+Command: /home/votter/miniconda3/envs/studcamp/bin/python /home/votter/projects/honeycomb-water-detection/experiments/030_unet_latent_convgru/train.py --epochs 50 --hidden 160 --layers 2 --dropout .10 --lr 2e-4 --weight-decay 1e-4 --use-d3

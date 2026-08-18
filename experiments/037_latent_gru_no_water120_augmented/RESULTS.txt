@@ -1,0 +1,23 @@
+Experiment 037 result
+=====================
+
+Warm-start: experiment 033.  Model: frozen U-Net v1 e4-only plus one
+128-channel ConvGRU.  water120 is ignored; output is background + five water
+classes.  Train adds neutral_water1 and three patched videos.  Validation is
+unaltered water2.
+
+Early stopped at epoch 16 of 50.  Best epoch: 1.
+Best five-class macro-IoU: 0.1783.
+Last epoch macro-IoU: 0.0520.
+
+Fair comparison
+---------------
+Experiment 033 recalculated on the same five classes scores macro-IoU 0.1863.
+Therefore 037 does not improve the baseline.  The all-background neutral video
+likely overweights background and the continued optimiser quickly degrades the
+water-class solution.  Do not select 037 as the final checkpoint.
+
+Next controlled change: exclude neutral_water1, retain only the three patched
+defect videos, lower fine-tuning LR to 3e-5, and warm-start from 037 best.pt so
+the six-output classification head is preserved.
+

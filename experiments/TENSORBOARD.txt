@@ -1,0 +1,18 @@
+TensorBoard for LSTM and augmentation experiments
+==================================================
+
+Start locally:
+  ./experiments/run_tensorboard.sh
+
+Open http://127.0.0.1:6006 .
+
+The exporter writes events to experiments/tensorboard_logs/ and includes:
+  - epoch-level validation loss, accuracy, macro-F1 and ordinal MAE for
+    experiments 001--003;
+  - the best-run summary for each LSTM experiment;
+  - three QA diagrams per augmentation experiment 010--014, each showing
+    source frame, transformed frame, source labels and transformed labels.
+
+Rerunning run_tensorboard.sh regenerates the event logs from the saved metrics
+and diagrams, so no stale dashboard state is retained.
+

@@ -1,0 +1,10 @@
+Stage 1: U-Net latent feature ablation
+=======================================
+
+031 receives e4 only.  032 receives e4+d3.  Everything else is identical:
+two ConvGRU layers with 160 channels, spatial dropout 0.10, lr 2e-4, AdamW
+weight decay 1e-4, 50-epoch cap, ReduceLROnPlateau and early stopping.
+
+This is the required control before searching GRU size/depth.  The winner is
+selected strictly by water2 macro-IoU.  water4 is not loaded by either run.
+

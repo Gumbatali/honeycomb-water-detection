@@ -1,0 +1,58 @@
+Experiment 044 result
+=====================
+
+Twenty-epoch diagnostic of online identity/180-degree, scale/translation,
+independent-cell permutation and local-gain augmentation.  The run completed
+all 20 epochs on CUDA.
+
+Best checkpoint
+---------------
+Epoch:         6
+macro-IoU:     0.5188
+macro-Dice:    0.5952
+ordinal MAE:   0.3464
+train loss:    1.1255
+validation loss: 0.8557
+
+Per-class IoU:
+  water20:  0.8873
+  water40:  0.4994
+  water60:  0.5021
+  water80:  0.4532
+  water100: 0.2520
+
+Unlike experiments 041/042, every retained water class has non-zero IoU.
+Compared with experiment 042 macro-IoU 0.4092, online domain augmentation
+improves by 0.1096 absolute.
+
+Train/validation convergence
+----------------------------
+At epochs 2, 3 and 8, absolute |validation loss - train loss| was respectively
+0.0586, 0.0449 and 0.0109.  Validation therefore closely follows the augmented
+training distribution during the first eight epochs.  The best semantic
+checkpoint occurs at epoch 6.
+
+After epoch 9 the losses diverge.  At epoch 20 train loss is 0.4369 while
+validation loss is 1.8066 and macro-IoU falls to 0.3326.  Augmentation closes
+the initial domain gap and delays overfitting, but does not justify training
+for all 20 epochs.  For this setup the useful range is approximately 5--8
+epochs, selected by validation macro-IoU.
+
+Observed online augmentation counts over 320 train samples:
+  identity:             157 (49.1%)
+  rotation 180:         163 (50.9%)
+  scale/translation:    220 (68.8%; configured 70%)
+  cell permutation:     150 (46.9%; configured 50%)
+  local gain:           223 (69.7%; configured 70%)
+
+The observed frequencies agree with the requested probabilities.  Validation
+water2 was never augmented and water4 remains untouched.
+
+Artifacts
+---------
+artifacts/best.pt
+artifacts/metrics.json
+artifacts/summary.txt
+artifacts/train_val_convergence.png
+artifacts/water2_validation.png
+artifacts/water2_confusion_matrix.json

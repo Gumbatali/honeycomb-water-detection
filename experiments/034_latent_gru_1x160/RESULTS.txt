@@ -1,0 +1,12 @@
+Stage-2 GRU search result
+=========================
+
+Frozen U-Net v1 e4-only features; train water1 + all augmentations,
+validation water2.  Configuration: one ConvGRU layer, 160 channels,
+lr=2e-4, weight decay=1e-4.
+
+Early stopped at epoch 17.  Best epoch: 2.
+Best water2 macro-IoU: 0.0255.
+
+This larger one-layer model is excluded.
+

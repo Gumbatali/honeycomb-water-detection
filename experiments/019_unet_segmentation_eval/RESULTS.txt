@@ -1,0 +1,22 @@
+Frozen U-Net segmentation result
+================================
+
+Checkpoint: models/segmentation/unet_water_v2.pth
+Evaluation: water4 is held out; water1/water2 are reported for diagnostics.
+Device: CUDA (RTX 4060 Laptop GPU).  No fitting was performed.
+
+Documented preprocessing used:
+  frames at 1, 3, 5, 7, 10, 15, 20 seconds; frame0 subtraction; clip at zero;
+  global 0..20-second maximum normalisation; Otsu + closing/fill/opening/largest
+  component + 12px erosion panel ROI; sigmoid threshold 0.5.
+
+Held-out water4 metric, evaluated inside panel ROI:
+  Dice: 0.8597
+  IoU: 0.7539
+  Precision: 1.0000
+  Recall: 0.7539
+
+Diagnostic per-video Dice: water1 0.9209, water2 0.9436, water4 0.8597.
+The checkpoint is suitable as the frozen segmentation stage when this exact
+preprocessing is applied.  The earlier zero score came from an incompatible
+neighbouring-frame/p01-p99 input pipeline.
