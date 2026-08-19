@@ -3,114 +3,162 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Тепловой контроль сотовых панелей</title>
+<title>Поиск воды в сотовых панелях — тепловой контроль</title>
 <style>
   :root {
-    --bg: oklch(16% 0.012 260);
-    --surface: oklch(21% 0.015 260);
-    --surface-raised: oklch(25% 0.018 260);
-    --line: oklch(32% 0.02 260);
-    --text: oklch(94% 0.005 260);
-    --muted: oklch(66% 0.012 260);
-    --accent: oklch(78% 0.16 65);
-    --accent-cool: oklch(72% 0.13 220);
-    --ok: oklch(74% 0.15 150);
+    --bg: oklch(97% 0.008 95);
+    --bg-grad: oklch(94% 0.02 90);
+    --surface: oklch(99% 0.004 95);
+    --surface-raised: oklch(95.5% 0.012 90);
+    --line: oklch(87% 0.014 85);
+    --text: oklch(24% 0.02 260);
+    --muted: oklch(48% 0.02 260);
+    --accent: oklch(62% 0.16 40);
+    --accent-soft: oklch(88% 0.06 45);
+    --accent-cool: oklch(58% 0.12 230);
+    --ok: oklch(56% 0.13 155);
+    --warn: oklch(60% 0.18 45);
 
-    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
     --sans: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
 
-    --space: clamp(1rem, 0.6rem + 1.2vw, 1.75rem);
-    --radius: 3px;
+    --space: clamp(1.1rem, 0.7rem + 1.2vw, 2rem);
+    --radius: 14px;
+    --radius-sm: 8px;
     --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --shadow: 0 1px 2px oklch(30% 0.02 260 / 0.06), 0 8px 24px oklch(30% 0.02 260 / 0.08);
+    --shadow-lift: 0 4px 10px oklch(30% 0.02 260 / 0.08), 0 16px 40px oklch(30% 0.02 260 / 0.12);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: oklch(19% 0.014 260);
+      --bg-grad: oklch(23% 0.02 255);
+      --surface: oklch(23% 0.016 260);
+      --surface-raised: oklch(27% 0.018 260);
+      --line: oklch(33% 0.02 260);
+      --text: oklch(93% 0.006 260);
+      --muted: oklch(66% 0.014 260);
+      --accent: oklch(74% 0.15 55);
+      --accent-soft: oklch(34% 0.06 45);
+      --accent-cool: oklch(74% 0.11 220);
+      --ok: oklch(74% 0.13 150);
+      --warn: oklch(75% 0.16 55);
+      --shadow: 0 1px 2px oklch(0% 0 0 / 0.3), 0 8px 24px oklch(0% 0 0 / 0.35);
+      --shadow-lift: 0 4px 10px oklch(0% 0 0 / 0.35), 0 20px 48px oklch(0% 0 0 / 0.4);
+    }
   }
 
   * { box-sizing: border-box; }
 
   body {
     margin: 0;
-    background: var(--bg);
+    background:
+      radial-gradient(1100px 520px at 12% -8%, var(--bg-grad), transparent),
+      var(--bg);
     color: var(--text);
     font-family: var(--sans);
-    font-size: 15px;
-    line-height: 1.5;
+    font-size: 15.5px;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
   }
 
   header {
-    padding: var(--space) calc(var(--space) * 1.5);
-    border-bottom: 1px solid var(--line);
+    padding: calc(var(--space) * 1.1) calc(var(--space) * 1.6) calc(var(--space) * 0.9);
     display: flex;
-    align-items: baseline;
+    align-items: flex-end;
+    justify-content: space-between;
     gap: 1.5rem;
     flex-wrap: wrap;
   }
 
-  h1 {
-    margin: 0;
-    font-size: clamp(1.05rem, 0.9rem + 0.5vw, 1.35rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
+  .heading h1 {
+    margin: 0 0 0.3rem;
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.4rem, 1.1rem + 1.1vw, 2.05rem);
+    letter-spacing: -0.01em;
   }
 
-  .subtitle {
+  .heading .lede {
     color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.76rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    font-size: 0.94rem;
+    max-width: 46ch;
+  }
+
+  .legend {
+    display: flex;
+    gap: 1.4rem;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .legend-dot {
+    width: 0.6rem; height: 0.6rem; border-radius: 50%;
+    flex: none;
   }
 
   main {
     display: grid;
-    /* minmax(0, 1fr) во второй колонке: иначе широкая таблица профилей
-       растягивает грид вместо того, чтобы скроллиться внутри себя. */
-    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
-    gap: 0;
-    min-height: calc(100vh - 74px);
+    grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+    gap: var(--space);
+    padding: 0 calc(var(--space) * 1.6) calc(var(--space) * 1.6);
+    align-items: start;
   }
 
-  @media (max-width: 860px) {
-    /* minmax(240px, ...) не сжимается ниже 240px и переполняет узкий экран —
-       на мобильных колонка должна свободно ужиматься. */
+  @media (max-width: 900px) {
     main { grid-template-columns: minmax(0, 1fr); }
-    aside { border-right: none; border-bottom: 1px solid var(--line); }
+    header { padding-left: var(--space); padding-right: var(--space); }
+    main { padding-left: var(--space); padding-right: var(--space); }
   }
 
   aside {
-    border-right: 1px solid var(--line);
-    padding: var(--space);
     background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.1rem;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: var(--space);
   }
+  @media (max-width: 900px) { aside { position: static; } }
 
   .label {
     font-family: var(--mono);
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.7rem;
   }
 
   .sample {
     width: 100%;
     text-align: left;
-    background: transparent;
+    background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: var(--radius);
+    border-radius: var(--radius-sm);
     color: var(--text);
-    padding: 0.7rem 0.8rem;
-    margin-bottom: 0.5rem;
+    padding: 0.75rem 0.85rem;
+    margin-bottom: 0.55rem;
     cursor: pointer;
     font-family: inherit;
-    font-size: 0.86rem;
+    font-size: 0.87rem;
     transition: border-color 160ms var(--ease), background 160ms var(--ease),
-                transform 160ms var(--ease);
+                box-shadow 160ms var(--ease), transform 160ms var(--ease);
   }
-  .sample:hover { border-color: var(--accent-cool); transform: translateX(2px); }
+  .sample:hover { border-color: var(--accent-cool); box-shadow: var(--shadow); transform: translateY(-1px); }
   .sample:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .sample[aria-pressed="true"] {
-    background: var(--surface-raised);
+    background: var(--accent-soft);
     border-color: var(--accent);
+    box-shadow: var(--shadow);
   }
 
   .sample .name {
@@ -118,22 +166,42 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
   }
   .sample .meta {
-    font-family: var(--mono);
-    font-size: 0.7rem;
+    font-size: 0.76rem;
     color: var(--muted);
     display: flex;
-    gap: 0.75rem;
+    gap: 0.6rem;
+    align-items: center;
+    flex-wrap: wrap;
   }
-  .badge { color: var(--accent); }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .badge.zero { color: var(--muted); font-weight: 500; }
+  .badge::before {
+    content: '';
+    width: 5px; height: 5px; border-radius: 50%;
+    background: currentColor;
+  }
 
-  section.viewer { padding: var(--space) calc(var(--space) * 1.5); }
+  section.viewer {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: var(--space);
+  }
 
   .controls {
     display: flex;
-    gap: 1.25rem;
+    gap: 1.6rem;
     align-items: flex-end;
     flex-wrap: wrap;
     margin-bottom: var(--space);
@@ -141,205 +209,309 @@
     border-bottom: 1px solid var(--line);
   }
 
-  .control { display: flex; flex-direction: column; gap: 0.35rem; }
+  .control { display: flex; flex-direction: column; gap: 0.4rem; }
+  .control .hint { color: var(--muted); font-size: 0.72rem; max-width: 22ch; }
 
   select, input[type=range] {
     background: var(--surface-raised);
     color: var(--text);
     border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 0.42rem 0.6rem;
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    min-width: 170px;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.7rem;
+    font-family: var(--sans);
+    font-size: 0.86rem;
+    min-width: 200px;
   }
   select:focus-visible, input:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 1px;
   }
-  input[type=range] { padding: 0; accent-color: var(--accent); cursor: pointer; }
+  input[type=range] { padding: 0; accent-color: var(--accent); cursor: pointer; min-width: 160px; }
+
+  .count-value {
+    font-family: var(--serif);
+    font-size: 1.7rem;
+    color: var(--ok);
+    line-height: 1;
+  }
+  .count-value.zero { color: var(--muted); }
+
+  .tabs { display: flex; gap: 0.3rem; background: var(--surface-raised); padding: 0.25rem; border-radius: var(--radius-sm); }
+  .tab {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 0.84rem;
+    font-weight: 500;
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: color 140ms var(--ease), background 140ms var(--ease);
+  }
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected="true"] {
+    background: var(--surface);
+    color: var(--accent);
+    font-weight: 600;
+    box-shadow: var(--shadow);
+  }
+  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   .stage {
     position: relative;
     display: inline-block;
     max-width: 100%;
     border: 1px solid var(--line);
-    border-radius: var(--radius);
+    border-radius: var(--radius-sm);
     overflow: hidden;
-    background: var(--surface);
+    background: var(--surface-raised);
     line-height: 0;
+    box-shadow: var(--shadow);
   }
   .stage img { max-width: 100%; height: auto; display: block; image-rendering: pixelated; }
 
   .zone {
     position: absolute;
-    border: 1.5px solid var(--accent);
-    background: color-mix(in oklch, var(--accent) 8%, transparent);
+    border: 2px solid var(--accent);
+    background: color-mix(in oklch, var(--accent) 10%, transparent);
     cursor: pointer;
-    transition: background 140ms var(--ease), border-color 140ms var(--ease);
+    border-radius: 3px;
+    transition: background 140ms var(--ease), border-color 140ms var(--ease), transform 140ms var(--ease);
   }
   .zone:hover, .zone.active {
-    background: color-mix(in oklch, var(--accent) 22%, transparent);
-    border-color: oklch(88% 0.17 65);
+    background: color-mix(in oklch, var(--accent) 26%, transparent);
+    border-color: var(--warn);
+    transform: scale(1.015);
   }
   .zone span {
     position: absolute;
     top: -1px; left: -1px;
     background: var(--accent);
-    color: oklch(18% 0.02 65);
-    font-family: var(--mono);
-    font-size: 10px;
+    color: oklch(99% 0.005 95);
+    font-family: var(--sans);
+    font-size: 11px;
     font-weight: 700;
     line-height: 1;
-    padding: 2px 4px;
+    padding: 3px 6px;
+    border-radius: 0 0 5px 0;
   }
 
   .readout {
     margin-top: var(--space);
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.85rem;
   }
 
   .card {
     border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 0.8rem 0.9rem;
-    background: var(--surface);
+    border-radius: var(--radius-sm);
+    padding: 0.9rem 1rem;
+    background: var(--surface-raised);
+    transition: box-shadow 160ms var(--ease);
   }
+  .card:hover { box-shadow: var(--shadow); }
   .card h3 {
-    margin: 0 0 0.55rem;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
+    margin: 0 0 0.65rem;
+    font-family: var(--serif);
+    font-size: 1rem;
     font-weight: 600;
+    color: var(--accent);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
   }
-  .card dl { margin: 0; font-family: var(--mono); font-size: 0.74rem; }
+  .card h3 .score-pill {
+    font-family: var(--sans);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+  }
+  .card dl { margin: 0; font-size: 0.82rem; }
   .card .row {
     display: flex;
     justify-content: space-between;
     gap: 0.75rem;
-    padding: 0.16rem 0;
-    border-bottom: 1px dotted color-mix(in oklch, var(--line) 70%, transparent);
+    padding: 0.3rem 0;
+    border-bottom: 1px dotted var(--line);
   }
   .card .row:last-child { border-bottom: none; }
   .card dt { color: var(--muted); }
-  .card dd { margin: 0; color: var(--text); }
-
-  .tabs { display: flex; gap: 0; }
-  .tab {
-    background: var(--surface-raised);
-    border: 1px solid var(--line);
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.76rem;
-    padding: 0.42rem 0.85rem;
-    cursor: pointer;
-    transition: color 140ms var(--ease), background 140ms var(--ease);
-  }
-  .tab:first-child { border-radius: var(--radius) 0 0 var(--radius); }
-  .tab:last-child { border-radius: 0 var(--radius) var(--radius) 0; border-left: none; }
-  .tab:hover { color: var(--text); }
-  .tab[aria-selected="true"] {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: oklch(18% 0.02 65);
-    font-weight: 600;
-  }
-  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .card dd { margin: 0; color: var(--text); font-variant-numeric: tabular-nums; }
 
   .profile-table {
     width: 100%;
     border-collapse: collapse;
-    font-family: var(--mono);
-    font-size: 0.76rem;
+    font-size: 0.82rem;
   }
   .profile-table th, .profile-table td {
     text-align: right;
-    padding: 0.42rem 0.6rem;
+    padding: 0.55rem 0.75rem;
     border-bottom: 1px solid var(--line);
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
   .profile-table th {
     color: var(--muted);
-    font-weight: 500;
-    text-transform: uppercase;
-    font-size: 0.66rem;
-    letter-spacing: 0.06em;
+    font-weight: 600;
+    font-size: 0.74rem;
     position: sticky;
     top: 0;
-    background: var(--surface);
+    background: var(--surface-raised);
   }
   .profile-table th:first-child, .profile-table td:first-child {
     text-align: left;
     color: var(--accent);
+    font-weight: 600;
   }
   .profile-table tbody tr:hover { background: var(--surface-raised); }
-  /* Выброс по признаку — кандидат на иное вещество или заполнение. */
-  .profile-table td.outlier { color: var(--accent); font-weight: 700; }
-  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+  .profile-table td.outlier { color: var(--warn); font-weight: 700; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+  .table-note {
+    color: var(--muted);
+    font-size: 0.82rem;
+    padding: 0.9rem 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .table-note .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); flex: none; }
 
   .empty {
     color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.82rem;
-    padding: 2.5rem 0;
+    font-size: 0.92rem;
+    padding: 3rem 1rem;
+    text-align: center;
   }
-  .count { color: var(--ok); font-family: var(--mono); font-size: 0.8rem; }
+  .empty .big { font-family: var(--serif); font-size: 1.1rem; color: var(--text); display: block; margin-bottom: 0.4rem; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Тепловой контроль сотовых панелей</h1>
-  <span class="subtitle">детекция · локализация · классификация</span>
+  <div class="heading">
+    <h1>Поиск воды в сотовых панелях</h1>
+    <p class="lede">Тепловизор нагревает панель и снимает, как она остывает — по скорости остывания программа находит места, где под обшивкой спряталась влага или другое постороннее вещество.</p>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>найденная зона</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--warn)"></span>сильно отличается от остальных</div>
+  </div>
 </header>
 
 <main>
   <aside>
-    <div class="label">Образцы</div>
+    <div class="label">Снимки панелей</div>
     <div id="samples"></div>
   </aside>
 
   <section class="viewer">
     <div class="controls">
       <div class="control">
-        <label class="label" for="feature">Карта признака</label>
+        <label class="label" for="feature">Что показывать на карте</label>
         <select id="feature"></select>
+        <span class="hint" id="featureHint"></span>
       </div>
       <div class="control">
-        <label class="label" for="sigma">Порог, σ: <span id="sigmaVal">1.0</span></label>
-        <input type="range" id="sigma" min="0.3" max="3" step="0.1" value="1">
+        <span class="label">Найдено подозрительных зон</span>
+        <span class="count-value" id="count">—</span>
       </div>
       <div class="control">
-        <span class="label">Найдено зон</span>
-        <span class="count" id="count">—</span>
-      </div>
-      <div class="control">
-        <span class="label">Вид</span>
+        <span class="label">Как смотреть</span>
         <div class="tabs" role="tablist">
-          <button class="tab" id="tabMap" role="tab" aria-selected="true">карта</button>
-          <button class="tab" id="tabTable" role="tab" aria-selected="false">профили</button>
+          <button class="tab" id="tabMap" role="tab" aria-selected="true">тепловая карта</button>
+          <button class="tab" id="tabTable" role="tab" aria-selected="false">таблица сравнения</button>
         </div>
       </div>
     </div>
 
-    <div id="stageWrap"><p class="empty">Выберите образец слева.</p></div>
+    <div id="stageWrap"><p class="empty"><span class="big">Выберите снимок слева</span>Слева — список обработанных панелей. Нажмите на любую, чтобы увидеть тепловую карту и найденные зоны.</p></div>
     <div class="readout" id="readout"></div>
   </section>
 </main>
 
 <script>
-const state = { sample: null, feature: 'half_decay_time', sigma: 1.0, zones: [], meta: null, view: 'map' };
+// Человеко-понятные подписи для технических признаков конвейера.
+// Ключи совпадают с именами карт признаков из src/preprocessing/features.py.
+const FEATURE_LABELS = {
+  half_decay_time: { title: 'Скорость остывания', hint: 'Как быстро точка теряет половину своего тепла. Вода остывает медленнее сухой панели — это лучший признак для поиска дефектов.' },
+  amplitude_max: { title: 'Сила нагрева', hint: 'Насколько сильно прогрелась точка панели относительно окружения на пике нагрева.' },
+  time_to_peak: { title: 'Время до максимума', hint: 'Через сколько секунд после начала нагрева точка достигла своей самой высокой температуры.' },
+  cooling_rate: { title: 'Темп остывания', hint: 'Насколько резко температура падает сразу после пика.' },
+  tail_ratio: { title: 'Остаточное тепло', hint: 'Какая доля тепла ещё осталась в точке к концу записи — чем больше, тем медленнее остывание.' },
+  integral: { title: 'Общее тепловложение', hint: 'Сколько тепла в сумме накопилось в точке за всё время наблюдения.' },
+};
+
+// Человеко-понятные названия того, как был расположен образец при съёмке.
+const ORIENTATION_LABELS = {
+  calibration: 'калибровочный снимок',
+  suspended: 'подвешен',
+  shelf: 'на полке',
+  flipped: 'перевёрнут',
+  printed: '3D-печатный образец',
+  unknown: 'образец панели',
+};
+
+// Имена снимков приходят от конвейера как имена исходных файлов.
+// Показываем их по-русски, но в запросы к API уходит только оригинал —
+// иначе сервер не найдёт образец.
+function sampleTitle(name) {
+  const calib = name.match(/^Calib Sample (\d+)/i);
+  if (calib) return `Калибровка № ${calib[1]}`;
+  const panel = name.match(/^Sample (\d+)/i);
+  if (panel) return `Панель № ${panel[1]}`;
+  return name;
+}
+
+const state = { sample: null, feature: 'half_decay_time', zones: [], view: 'map' };
+// Растёт на каждый запрос, дающий побочный эффект в DOM; ответ применяется,
+// только если токен ещё актуален — иначе устаревший запрос дорисовывает
+// зоны/таблицу поверх уже выбранного пользователем образца.
+let requestToken = 0;
 
 const el = (id) => document.getElementById(id);
+const featureLabel = (name) => (FEATURE_LABELS[name] && FEATURE_LABELS[name].title) || name;
+const orientationLabel = (name) => ORIENTATION_LABELS[name] || name;
+
+// При чётном числе зон берём среднее двух центральных: иначе на двух зонах
+// «типичным» становится большее значение, и вторая зона выглядит отклонением.
+function median(values) {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+// Единая точка запроса: без неё упавший сервер оставляет страницу
+// молча замершей, без единого признака того, что что-то сломалось.
+async function fetchJson(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`сервер ответил ${response.status}`);
+  return response.json();
+}
+
+function showError(message) {
+  el('stageWrap').innerHTML = `<p class="empty"><span class="big">Не удалось загрузить данные</span>${message}. Попробуйте обновить страницу.</p>`;
+  el('readout').innerHTML = '';
+}
 
 async function loadSamples() {
-  const samples = await (await fetch('/api/samples')).json();
   const box = el('samples');
+  let samples;
+  try {
+    samples = await fetchJson('/api/samples');
+  } catch (error) {
+    box.innerHTML = '<p class="empty">Список снимков недоступен.</p>';
+    showError(error.message);
+    return;
+  }
   if (!samples.length) {
-    box.innerHTML = '<p class="empty">Нет обработанных образцов.<br>Запустите конвейер.</p>';
+    box.innerHTML = '<p class="empty"><span class="big">Пока нет данных</span>Обработанные снимки ещё не загружены.</p>';
     return;
   }
   box.innerHTML = '';
@@ -347,39 +519,79 @@ async function loadSamples() {
     const b = document.createElement('button');
     b.className = 'sample';
     b.setAttribute('aria-pressed', 'false');
-    b.innerHTML = `<span class="name">${s.name}</span>
-      <span class="meta"><span>${s.height}×${s.width}</span>
-      <span>${s.orientation}</span>
-      <span class="badge">${s.n_zones} зон</span></span>`;
+    const zoneBadge = s.n_zones > 0
+      ? `<span class="badge">${s.n_zones} ${zoneWord(s.n_zones)}</span>`
+      : `<span class="badge zero">без зон</span>`;
+    b.innerHTML = `<span class="name">${sampleTitle(s.name)}</span>
+      <span class="meta"><span>${orientationLabel(s.orientation)}</span>${zoneBadge}</span>`;
     b.onclick = () => selectSample(s, b);
     box.appendChild(b);
-    if (i === 0) { el('feature').innerHTML = s.features.map(f => `<option>${f}</option>`).join(''); el('feature').value = state.feature; }
   });
+}
+
+// Набор признаков принадлежит образцу, поэтому селектор строится под него,
+// а не один раз по первому снимку в списке.
+function fillFeatureOptions(sample) {
+  const features = sample.features || [];
+  el('feature').innerHTML = features.map(f => `<option value="${f}">${featureLabel(f)}</option>`).join('');
+  if (!features.includes(state.feature)) state.feature = features[0];
+  el('feature').value = state.feature;
+  updateFeatureHint();
+}
+
+function zoneWord(n) {
+  const mod10 = n % 10, mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'зона';
+  if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) return 'зоны';
+  return 'зон';
+}
+
+function updateFeatureHint() {
+  const info = FEATURE_LABELS[state.feature];
+  el('featureHint').textContent = info ? info.hint : '';
 }
 
 function selectSample(sample, button) {
   document.querySelectorAll('.sample').forEach(b => b.setAttribute('aria-pressed', 'false'));
   button.setAttribute('aria-pressed', 'true');
   state.sample = sample.name;
-  state.meta = sample;
+  fillFeatureOptions(sample);
   setView(state.view);
 }
 
 async function refresh() {
   if (!state.sample) return;
-  const q = `feature=${encodeURIComponent(state.feature)}&sigma=${state.sigma}`;
-  const data = await (await fetch(`/api/samples/${encodeURIComponent(state.sample)}/zones?${q}`)).json();
+  const token = ++requestToken;
+  let data;
+  try {
+    data = await fetchJson(`/api/samples/${encodeURIComponent(state.sample)}/zones`);
+  } catch (error) {
+    if (token === requestToken) showError(error.message);
+    return;
+  }
+  if (token !== requestToken) return;
   state.zones = data.zones;
   el('count').textContent = data.zones.length;
+  el('count').classList.toggle('zero', data.zones.length === 0);
 
+  renderCards(null);
+  redrawMap(data, token);
+}
+
+// Перерисовывает только картинку карты — используется и после свежей
+// детекции (refresh), и при смене признака на уже известном наборе зон,
+// когда пересчитывать зоны заново не нужно: они не зависят от того,
+// какая карта выбрана для отображения.
+function redrawMap(data, token) {
   const wrap = el('stageWrap');
   wrap.innerHTML = `<div class="stage" id="stage">
-    <img id="mapImg" alt="Карта признака ${state.feature}">
+    <img id="mapImg" alt="Тепловая карта: ${featureLabel(state.feature)}">
   </div>`;
   const img = el('mapImg');
   img.src = `/api/samples/${encodeURIComponent(state.sample)}/map/${encodeURIComponent(state.feature)}?t=${Date.now()}`;
-  img.onload = () => drawZones(data);
-  renderCards(null);
+  // Токен проверяется и здесь: onload срабатывает уже после await,
+  // и картинка предыдущего образца иначе дорисовывает свои зоны поверх нового.
+  img.onload = () => { if (token === requestToken) drawZones(data); };
 }
 
 function drawZones(data) {
@@ -411,39 +623,53 @@ function renderCards(activeIndex) {
   box.innerHTML = zones.map((z, i) => {
     const n = activeIndex === null ? i + 1 : activeIndex + 1;
     const rows = Object.entries(z.profile).map(([k, v]) =>
-      `<div class="row"><dt>${k}</dt><dd>${Number(v).toFixed(3)}</dd></div>`).join('');
-    return `<div class="card"><h3>Зона ${n} · score ${z.score}</h3>
-      <dl><div class="row"><dt>bbox</dt><dd>${z.row0},${z.col0}–${z.row1},${z.col1}</dd></div>${rows}</dl></div>`;
+      `<div class="row"><dt>${featureLabel(k)}</dt><dd>${Number(v).toFixed(2)}</dd></div>`).join('');
+    return `<div class="card"><h3>Зона ${n}<span class="score-pill">заметность ${z.score}</span></h3>
+      <dl>${rows}</dl></div>`;
   }).join('');
 }
 
 async function showProfiles() {
   if (!state.sample) return;
-  const data = await (await fetch(`/api/samples/${encodeURIComponent(state.sample)}/compare`)).json();
+  const token = ++requestToken;
+  let data;
+  try {
+    data = await fetchJson(`/api/samples/${encodeURIComponent(state.sample)}/compare`);
+  } catch (error) {
+    if (token === requestToken) showError(error.message);
+    return;
+  }
+  if (token !== requestToken) return;
+  if (!data.zones.length) {
+    el('stageWrap').innerHTML = '<p class="empty"><span class="big">Подозрительных зон не найдено</span>На этом снимке нет мест, заметно отличающихся от остальной панели.</p>';
+    el('readout').innerHTML = '';
+    return;
+  }
+
   const feats = data.features;
-
-  // Медиана по каждому признаку: зона, отклоняющаяся более чем на 25%,
-  // подсвечивается как кандидат на иное вещество/заполнение.
+  // Сравнивать зону не с чем, пока она одна: любое отклонение от самой себя
+  // равно нулю, и подсветка молча никогда не сработала бы.
+  const comparable = data.zones.length > 1;
   const medians = {};
-  feats.forEach(f => {
-    const vals = data.zones.map(z => z.profile[f]).sort((a, b) => a - b);
-    medians[f] = vals[Math.floor(vals.length / 2)];
-  });
+  if (comparable) feats.forEach(f => { medians[f] = median(data.zones.map(z => z.profile[f])); });
 
-  const head = `<tr><th>зона</th><th>bbox</th>${feats.map(f => `<th>${f}</th>`).join('')}</tr>`;
+  const head = `<tr><th>зона</th>${feats.map(f => `<th>${featureLabel(f)}</th>`).join('')}</tr>`;
   const rows = data.zones.map(z => {
     const cells = feats.map(f => {
       const v = z.profile[f];
       const m = medians[f];
-      const dev = m !== 0 ? Math.abs((v - m) / m) : 0;
-      return `<td class="${dev > 0.25 ? 'outlier' : ''}">${v.toFixed(3)}</td>`;
+      const deviates = comparable && m !== 0 && Math.abs((v - m) / m) > 0.25;
+      return `<td class="${deviates ? 'outlier' : ''}">${v.toFixed(2)}</td>`;
     }).join('');
-    return `<tr><td>${z.index}</td><td>${z.bbox.join(',')}</td>${cells}</tr>`;
+    return `<tr><td>${z.index}</td>${cells}</tr>`;
   }).join('');
 
+  const note = comparable
+    ? '<p class="table-note"><span class="dot"></span>Выделено — зона отличается от типичной больше чем на четверть. Это кандидат на другое вещество или другую степень заполнения.</p>'
+    : '<p class="table-note">Найдена всего одна зона — сравнивать её пока не с чем.</p>';
+
   el('stageWrap').innerHTML = `<div class="table-wrap">
-    <table class="profile-table"><thead>${head}</thead><tbody>${rows}</tbody></table></div>
-    <p class="empty" style="padding:0.9rem 0 0">Оранжевым — отклонение от медианы более 25%.</p>`;
+    <table class="profile-table"><thead>${head}</thead><tbody>${rows}</tbody></table></div>${note}`;
   el('readout').innerHTML = '';
 }
 
@@ -454,9 +680,14 @@ function setView(view) {
   view === 'map' ? refresh() : showProfiles();
 }
 
-el('feature').onchange = (e) => { state.feature = e.target.value; if (state.view === 'map') refresh(); };
-el('sigma').oninput = (e) => { state.sigma = parseFloat(e.target.value); el('sigmaVal').textContent = state.sigma.toFixed(1); };
-el('sigma').onchange = () => { if (state.view === 'map') refresh(); };
+// Признак меняет только отображаемую карту (/map/{feature}) — детекция зон
+// голосует по всем картам сразу и от выбора в этом селекторе не зависит,
+// поэтому нужно перерисовать картинку, но не пересчитывать зоны заново.
+el('feature').onchange = (e) => {
+  state.feature = e.target.value;
+  updateFeatureHint();
+  if (state.view === 'map' && state.sample) redrawMap({ zones: state.zones }, requestToken);
+};
 el('tabMap').onclick = () => setView('map');
 el('tabTable').onclick = () => setView('table');
 

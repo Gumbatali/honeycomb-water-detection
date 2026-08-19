@@ -26,8 +26,10 @@ def _sample_paths() -> list[Path]:
 
 
 def _find_sample(name: str) -> Path:
-    path = PROCESSED_DIR / f"{name}.npz"
-    if not path.exists():
+    # Имя приходит из URL, поэтому путь проверяется после разрешения:
+    # иначе "../.." выводит чтение за пределы каталога образцов.
+    path = (PROCESSED_DIR / f"{name}.npz").resolve()
+    if not path.is_relative_to(PROCESSED_DIR.resolve()) or not path.exists():
         raise HTTPException(status_code=404, detail=f"Образец '{name}' не найден")
     return path
 
@@ -56,38 +58,58 @@ def render_map_png(values: np.ndarray, cmap: str = "inferno") -> bytes:
     return buffer.getvalue()
 
 
+# Детекция по всем образцам занимает сотни миллисекунд и растёт линейно
+# с размером датасета, а карточка образца меняется только при перезаписи
+# .npz — поэтому результат кэшируется по (путь, mtime, размер).
+_SUMMARY_CACHE: dict[tuple[str, int, int], dict] = {}
+
+
+def _sample_summary(path: Path) -> dict:
+    stat = path.stat()
+    key = (str(path), stat.st_mtime_ns, stat.st_size)
+    cached = _SUMMARY_CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    features, meta = load_features(path)
+    summary = {
+        **asdict(meta),
+        "n_zones": len(detect_zones(features)),
+        "size_mb": round(stat.st_size / 1e6, 2),
+        "features": list(features.names),
+    }
+    # Чистим только устаревшие записи ЭТОГО же файла (старый mtime/size) —
+    # полный clear() на каждой вставке обнулял кэш внутри одного прохода
+    # по списку образцов: список из N файлов пересчитывал детекцию N раз
+    # вместо одного, и /api/samples не ускорялся между запросами.
+    stale = [k for k in _SUMMARY_CACHE if k[0] == key[0] and k != key]
+    for k in stale:
+        del _SUMMARY_CACHE[k]
+    _SUMMARY_CACHE[key] = summary
+    return summary
+
+
 @app.get("/api/samples")
 def list_samples() -> list[dict]:
     """Список обработанных образцов с метаданными и числом найденных зон."""
-    samples = []
-    for path in _sample_paths():
-        features, meta = load_features(path)
-        zones = detect_zones(features)
-        samples.append(
-            {
-                **asdict(meta),
-                "n_zones": len(zones),
-                "size_mb": round(path.stat().st_size / 1e6, 2),
-                "features": list(features.names),
-            }
-        )
-    return samples
+    return [_sample_summary(path) for path in _sample_paths()]
 
 
 @app.get("/api/samples/{name}/zones")
-def get_zones(name: str, feature: str = "half_decay_time", sigma: float = 1.0) -> dict:
-    """Детекция зон с настраиваемыми параметрами."""
-    features, meta = load_features(_find_sample(name))
-    if feature not in features.names:
-        raise HTTPException(status_code=400, detail=f"Неизвестный признак '{feature}'")
+def get_zones(name: str) -> dict:
+    """Детекция зон консенсусом четырёх независимых методов.
 
-    zones = detect_zones(features, feature_name=feature, threshold_sigma=sigma)
+    Порог и признак больше не задаются вызывающей стороной: детектор
+    голосует по всем картам признаков сразу (см. src/detection/zones.py),
+    и настройка одного порога на один признак не отражает, как он
+    в действительности принимает решение.
+    """
+    features, meta = load_features(_find_sample(name))
+    zones = detect_zones(features)
     return {
         "sample": meta.name,
         "height": meta.height,
         "width": meta.width,
-        "feature": feature,
-        "sigma": sigma,
         "zones": [
             {**zone.as_dict(), "profile": zone_profile(features, zone)} for zone in zones
         ],
