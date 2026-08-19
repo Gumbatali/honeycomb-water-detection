@@ -118,6 +118,18 @@ def reference_curve(cube: np.ndarray, ref_mask: np.ndarray) -> np.ndarray:
     return cube[mask].mean(axis=0).astype(np.float64)
 
 
+#: Ограничение итоговой производной. У полубесконечного тела наклон -0.5;
+#: даже с большим запасом на подповерхностные неоднородности значения за
+#: пределами [-20, 20] — не физический сигнал, а всплеск на переходе
+#: контраста через ноль (см. ниже). Диапазон согласован с тем, что даёт
+#: гладкая физическая синтетика (SyntheticCurveDataset): без ограничения
+#: реальные данные, где контраст на 20-30% пикселей проходит рядом с нулём
+#: из-за боковой диффузии и шума, давали производную вплоть до ±120 —
+#: сеть, обученная на синтетике с диапазоном ±17, получала на fine-tune
+#: вход далеко за пределами того, что видела на этапе A.
+SLOPE_CLIP: float = 20.0
+
+
 def log_derivative(
     contrast: np.ndarray, t: np.ndarray, eps: float = 1e-3
 ) -> np.ndarray:
@@ -129,6 +141,10 @@ def log_derivative(
 
     Производная считается центральными разностями по ``ln t``; ``eps``
     защищает логарифм от нулевых и отрицательных значений контраста.
+    Результат обрезается до ``[-SLOPE_CLIP, SLOPE_CLIP]``: сигнал вблизи
+    перехода через ноль (на реальных данных — 20-30% пикселей, боковая
+    диффузия и шум) даёт не физическую особенность, а численный артефакт
+    производной, а не саму форму кривой.
 
     Parameters
     ----------
@@ -142,7 +158,7 @@ def log_derivative(
     Returns
     -------
     np.ndarray
-        (H, W, N_frames) float32.
+        (H, W, N_frames) float32, значения в [-SLOPE_CLIP, SLOPE_CLIP].
     """
     if contrast.ndim != 3:
         raise ValueError(f"Ожидается куб (H, W, N), получено {contrast.shape}")
@@ -159,7 +175,9 @@ def log_derivative(
     log_signal = np.log(np.maximum(np.abs(contrast).astype(np.float64), eps))
 
     derivative = np.gradient(log_signal, log_t, axis=2)
-    return np.nan_to_num(derivative, nan=0.0, posinf=0.0, neginf=0.0).astype(np.float32)
+    derivative = np.nan_to_num(derivative, nan=0.0, posinf=0.0, neginf=0.0)
+    derivative = np.clip(derivative, -SLOPE_CLIP, SLOPE_CLIP)
+    return derivative.astype(np.float32)
 
 
 def resample_log_grid(
@@ -278,7 +296,16 @@ def build_input_tensor(
     )
     delta_grid, _ = resample_log_grid(delta, t, n_points=n_points, t_min=t_min)
 
-    slope_grid = log_derivative(delta_grid, t_grid)
+    # ВАЖНО: производная берётся от CONTRAST, а не от delta (сырого перегрева
+    # в кельвинах). delta = cube - cube[:,:,:1] на реальных записях меняет
+    # знак у ~2/3 пикселей (пиксель может стать холоднее опорного кадра из-за
+    # дрейфа фона), и log(|delta|) взрывается на переходе через ноль — на
+    # water2 это давало диапазон производной [-120, 98] против [-17, 13.6] у
+    # синтетики (SyntheticCurveDataset.build_channels), которая всегда берёт
+    # производную от нормированного контраста. Рассогласование источника
+    # обесценивало перенос весов с этапа A: сеть видела на fine-tune вход
+    # вне диапазона, на котором обучалась, и коллапсировала в константу.
+    slope_grid = log_derivative(contrast_grid, t_grid)
     delta_norm = _normalize_per_frame(delta_grid)
 
     # (H, W, n_points) -> (n_points, H, W) для каждого канала.
