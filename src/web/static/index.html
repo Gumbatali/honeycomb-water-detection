@@ -588,17 +588,38 @@ function redrawMap(data, token) {
     <img id="mapImg" alt="Тепловая карта: ${featureLabel(state.feature)}">
   </div>`;
   const img = el('mapImg');
-  img.src = `/api/samples/${encodeURIComponent(state.sample)}/map/${encodeURIComponent(state.feature)}?t=${Date.now()}`;
-  // Токен проверяется и здесь: onload срабатывает уже после await,
+  // onload назначается ДО src: если картинка уже в кэше браузера (тот же
+  // образец и признак были открыты раньше), событие load может сработать
+  // быстрее, чем следующая строка успевала бы назначить обработчик — тогда
+  // оно просто терялось, drawZones ни разу не вызывалась, а зоны исчезали
+  // молча, без единой ошибки в консоли.
+  //
+  // Токен проверяется здесь же: onload срабатывает уже после await выше,
   // и картинка предыдущего образца иначе дорисовывает свои зоны поверх нового.
-  img.onload = () => { if (token === requestToken) drawZones(data); };
+  //
+  // onload сигнализирует, что данные картинки загружены, но не гарантирует,
+  // что браузер уже выполнил layout контейнера: на самом первом рендере
+  // страницы .stage (display: inline-block) ещё не знает свой размер в
+  // этот момент, img.clientWidth читается нулевым, и все рамки зон рисуются
+  // в точке (0,0) размером 0x0. requestAnimationFrame откладывает чтение
+  // размеров на следующий кадр, когда layout уже точно прошёл.
+  img.onload = () => {
+    if (token !== requestToken) return;
+    requestAnimationFrame(() => { if (token === requestToken) drawZones(data); });
+  };
+  img.src = `/api/samples/${encodeURIComponent(state.sample)}/map/${encodeURIComponent(state.feature)}?t=${Date.now()}`;
 }
 
 function drawZones(data) {
   const stage = el('stage');
   const img = el('mapImg');
-  const sx = img.clientWidth / data.width;
-  const sy = img.clientHeight / data.height;
+  // clientWidth может остаться нулевым даже после requestAnimationFrame
+  // в редких случаях (например, вкладка в фоне) — naturalWidth уже известен
+  // сразу после onload и служит надёжным резервным масштабом 1:1.
+  const displayWidth = img.clientWidth || img.naturalWidth;
+  const displayHeight = img.clientHeight || img.naturalHeight;
+  const sx = displayWidth / data.width;
+  const sy = displayHeight / data.height;
   data.zones.forEach((z, i) => {
     const d = document.createElement('div');
     d.className = 'zone';
