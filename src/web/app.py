@@ -34,8 +34,16 @@ def _find_sample(name: str) -> Path:
     return path
 
 
-def render_map_png(values: np.ndarray, cmap: str = "inferno") -> bytes:
-    """Рендерит карту признака в PNG с перцентильным контрастированием."""
+def render_map_jpeg(values: np.ndarray, cmap: str = "inferno") -> bytes:
+    """Рендерит карту признака в JPEG с перцентильным контрастированием.
+
+    PNG того же кадра весит ~768 КБ и на канале до ВМ (не локальная сеть)
+    качается дольше, чем сама детекция зон: 4.4 с одной скачки против
+    0.6 с построения PNG. JPEG q90 даёт ~155 КБ при визуально неотличимом
+    результате — карта уже прогнана через цветовую схему и перцентильное
+    контрастирование, поэтому артефакты сжатия на ней не заметны так, как
+    были бы на исходных числовых данных.
+    """
     import matplotlib
 
     matplotlib.use("Agg")
@@ -54,39 +62,47 @@ def render_map_png(values: np.ndarray, cmap: str = "inferno") -> bytes:
     rgba = (colormaps[cmap](normalized) * 255).astype(np.uint8)
 
     buffer = io.BytesIO()
-    Image.fromarray(rgba).save(buffer, format="PNG")
+    Image.fromarray(rgba[:, :, :3]).save(buffer, format="JPEG", quality=90)
     return buffer.getvalue()
 
 
-# Детекция по всем образцам занимает сотни миллисекунд и растёт линейно
-# с размером датасета, а карточка образца меняется только при перезаписи
-# .npz — поэтому результат кэшируется по (путь, mtime, размер).
-_SUMMARY_CACHE: dict[tuple[str, int, int], dict] = {}
+# Консенсусная детекция (4 голоса: порог, GMM, PCA, решётка) занимает
+# секунды на образец, а не миллисекунды — GMM/PCA обучаются заново на
+# каждый вызов. Без кэша это происходило трижды на клик по одному и тому
+# же образцу: при построении списка (n_zones), при открытии карты (/zones)
+# и при переключении на таблицу (/compare). Кэшируются сами объекты Zone —
+# ключ учитывает mtime/размер файла, поэтому запись сбрасывается сама
+# при обновлении .npz, без явной инвалидации.
+_ZONES_CACHE: dict[tuple[str, int, int], list] = {}
 
 
-def _sample_summary(path: Path) -> dict:
+def _cached_zones(path: Path, features) -> list:
     stat = path.stat()
     key = (str(path), stat.st_mtime_ns, stat.st_size)
-    cached = _SUMMARY_CACHE.get(key)
+    cached = _ZONES_CACHE.get(key)
     if cached is not None:
         return cached
 
+    zones = detect_zones(features)
+    # Чистим только устаревшие записи ЭТОГО же файла (старый mtime/size):
+    # полный clear() на каждой вставке обнулял бы кэш внутри одного
+    # прохода по списку образцов вместо инвалидации одного файла.
+    stale = [k for k in _ZONES_CACHE if k[0] == key[0] and k != key]
+    for k in stale:
+        del _ZONES_CACHE[k]
+    _ZONES_CACHE[key] = zones
+    return zones
+
+
+def _sample_summary(path: Path) -> dict:
     features, meta = load_features(path)
-    summary = {
+    stat = path.stat()
+    return {
         **asdict(meta),
-        "n_zones": len(detect_zones(features)),
+        "n_zones": len(_cached_zones(path, features)),
         "size_mb": round(stat.st_size / 1e6, 2),
         "features": list(features.names),
     }
-    # Чистим только устаревшие записи ЭТОГО же файла (старый mtime/size) —
-    # полный clear() на каждой вставке обнулял кэш внутри одного прохода
-    # по списку образцов: список из N файлов пересчитывал детекцию N раз
-    # вместо одного, и /api/samples не ускорялся между запросами.
-    stale = [k for k in _SUMMARY_CACHE if k[0] == key[0] and k != key]
-    for k in stale:
-        del _SUMMARY_CACHE[k]
-    _SUMMARY_CACHE[key] = summary
-    return summary
 
 
 @app.get("/api/samples")
@@ -104,8 +120,9 @@ def get_zones(name: str) -> dict:
     и настройка одного порога на один признак не отражает, как он
     в действительности принимает решение.
     """
-    features, meta = load_features(_find_sample(name))
-    zones = detect_zones(features)
+    path = _find_sample(name)
+    features, meta = load_features(path)
+    zones = _cached_zones(path, features)
     return {
         "sample": meta.name,
         "height": meta.height,
@@ -118,11 +135,11 @@ def get_zones(name: str) -> dict:
 
 @app.get("/api/samples/{name}/map/{feature}")
 def get_map(name: str, feature: str) -> Response:
-    """PNG-визуализация карты признака."""
+    """JPEG-визуализация карты признака."""
     features, _ = load_features(_find_sample(name))
     if feature not in features.names:
         raise HTTPException(status_code=400, detail=f"Неизвестный признак '{feature}'")
-    return Response(content=render_map_png(features[feature]), media_type="image/png")
+    return Response(content=render_map_jpeg(features[feature]), media_type="image/jpeg")
 
 
 @app.get("/api/samples/{name}/compare")
@@ -132,8 +149,9 @@ def compare_features(name: str) -> dict:
     Возвращает зоны, упорядоченные как читается сетка, чтобы их можно
     было сопоставить с протоколом эксперимента.
     """
-    features, meta = load_features(_find_sample(name))
-    zones = order_zones_by_grid(detect_zones(features))
+    path = _find_sample(name)
+    features, meta = load_features(path)
+    zones = order_zones_by_grid(_cached_zones(path, features))
 
     return {
         "sample": meta.name,

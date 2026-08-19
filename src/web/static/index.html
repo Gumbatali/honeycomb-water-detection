@@ -640,6 +640,12 @@ async function showProfiles() {
     return;
   }
   if (token !== requestToken) return;
+  // Счётчик общий для обеих вкладок: без обновления здесь он застревал
+  // на числе зон последнего просмотра карты, даже если открыт другой
+  // образец или в нём вовсе не найдено зон в табличном виде.
+  el('count').textContent = data.zones.length;
+  el('count').classList.toggle('zero', data.zones.length === 0);
+
   if (!data.zones.length) {
     el('stageWrap').innerHTML = '<p class="empty"><span class="big">Подозрительных зон не найдено</span>На этом снимке нет мест, заметно отличающихся от остальной панели.</p>';
     el('readout').innerHTML = '';
