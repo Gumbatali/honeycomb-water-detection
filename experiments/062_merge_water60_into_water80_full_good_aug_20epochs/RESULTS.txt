@@ -1,0 +1,53 @@
+Experiment 062 results
+======================
+
+Status: completed 20 CUDA epochs.  Best checkpoint: epoch 16.
+
+Label protocol
+--------------
+There is exactly one merged pair: original water60 (3) and water80 (4) become
+one compact output class 3.  Original water100 (5) becomes compact output class
+4.  Original water120 (6) is neutralized in the inputs and ignored in target,
+loss and metrics; it is not merged with another label.  The combined class has
+CE weight 0.5 to compensate for its doubled supervised area.
+
+Augmentation
+------------
+23 training records per epoch: 16 online draws from water1, three translated
+defect-patch videos, and four neutral-canvas gain-permutation videos.  Every
+draw also uses the experiment-051 online domain and global temporal transforms.
+Observed over 460 draws: 224 180-degree rotations, 336 scale/translations, 238
+cell permutations, 322 local gains, 229 onset shifts, 228 time warps, and 134
+cooling warps.  Flip, aggressive affine and unconstrained random pasting were
+excluded because they had degraded robustness in prior tests.
+
+Metrics
+-------
+water2 validation macro IoU: 0.783578
+  water20 0.942779; water40 0.530667; water60/water80 0.761955; water100 0.898913
+
+water4 comparative macro IoU: 0.760867
+  water20 0.565957; water40 0.918396; water60/water80 0.620758; water100 0.938356
+
+Fair comparison with experiment 051
+-----------------------------------
+If 051's saved water4 confusion matrix is remapped to the same deployed four
+defect classes, its macro IoU is 0.764212 versus 0.760867 here.  Thus 062 does
+not improve aggregate performance, but it raises the deployed water60/water80
+IoU from 0.562419 to 0.620758 and removes the unsupported standalone water60
+decision.  The cost is primarily water20 IoU (0.658156 to 0.565957).
+
+Decision
+--------
+062 is the appropriate MVP candidate only if the product may expose a combined
+"water60--water80" level rather than distinct water60 and water80 levels.
+For a six-level product, retain 051 and label water60 as unsupported/uncertain;
+the present data does not validate a separate water60 classifier.
+
+Artifacts
+---------
+artifacts/best.pt
+artifacts/metrics.json
+artifacts/water4_test_metrics.json
+artifacts/water4_test_confusion_matrix.json
+artifacts/water4_test.png

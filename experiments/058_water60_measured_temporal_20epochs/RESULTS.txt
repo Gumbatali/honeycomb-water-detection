@@ -1,0 +1,29 @@
+Experiment 058 results
+======================
+
+Status: completed 20 CUDA epochs.  Best checkpoint: epoch 9 (selected on water2).
+
+Protocol
+--------
+Experiment 051 plus an additional water60-only temporal augmentation on 234 of
+320 training samples: onset delay 0.20--0.60 s, heating time scale 0.78--0.90,
+and post-peak cooling scale 0.70--0.85.  The range was measured from the
+water4-water60 curve, and was applied to both ConvGRU and U-Net time inputs.
+
+Results
+-------
+water2: macro IoU 0.435199, water60 IoU 0.318305.
+water4: macro IoU 0.246991, water60 IoU 0.098765.
+
+Compared with experiment 051 (water2/water4 macro IoU 0.696554/0.670653), this
+class-specific transform recovers a small nonzero water60 response on water4
+but severely degrades every other class and is not a viable model replacement.
+
+Decision
+--------
+Do not ship this checkpoint.  The remaining water60 issue cannot be resolved
+reliably from a single water1 training curve by wider or class-specific
+synthetic temporal warps.  A full six-level MVP needs additional labelled
+water60 recordings spanning the deployment heating/cooling profile.  Until
+then, either hold the full-class MVP or explicitly expose water60 as an
+uncertain/unsupported level rather than returning a confident wrong class.

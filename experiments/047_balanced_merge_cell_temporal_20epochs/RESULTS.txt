@@ -1,0 +1,28 @@
+Experiment 047 results
+======================
+
+Completed 20 CUDA epochs.  Best checkpoint: epoch 9.
+
+water2 validation
+-----------------
+macro IoU 0.536467; macro Dice 0.608942; ordinal MAE 0.374486.
+Class IoU: [0.880051, 0.522523, 0.475889, 0.355440, 0.448430].
+
+The class-5 weight of 0.5 prevents the severe class-5 overprediction seen in
+experiment 046, but independent cell temporal transforms lower validation
+macro IoU from 0.614987 to 0.536467.  Of 320 samples, 230 received local
+temporal augmentation, covering 1380 cell instances.
+
+Comparative water4 check
+------------------------
+macro IoU 0.264487; macro Dice 0.295168; ordinal MAE 0.999090.
+Class IoU: [0.559406, 0.471635, 0.000000, 0.048193, 0.243203].
+
+The independent onset/time/cooling ranges make neighbouring labels overlap too
+strongly for a model trained from one real recording.  This experiment should
+not be selected.  It is retained as the controlled evidence for the effect of
+per-cell temporal augmentation.
+
+Artifacts: artifacts/metrics.json, artifacts/best.pt,
+artifacts/water2_validation.png, artifacts/water4_test.png and
+artifacts/comparison_046_047_048.png.

@@ -1,0 +1,28 @@
+Experiment 050 results
+======================
+
+Completed 20 CUDA epochs.  Best checkpoint: epoch 4.
+
+This run matches experiment 049 but enables independent cell temporal warp at
+half the experiment-048 ranges: onset +/-0.125 s, time scale 0.975--1.025 and
+cooling scale 0.95--1.05, with probability 0.7.
+
+water2 validation
+-----------------
+macro IoU 0.525768; macro Dice 0.595369; ordinal MAE 0.556757.
+Class IoU: [0.843373, 0.518193, 0.570953, 0.344008, 0.352311].
+
+Comparative water4 check
+------------------------
+macro IoU 0.262499; macro Dice 0.303031; ordinal MAE 1.172421.
+Class IoU: [0.671838, 0.240223, 0.000000, 0.242339, 0.158095].
+
+Even half-range independent cell temporal augmentation is worse than disabling
+it: water2 macro IoU 0.525768 versus 0.576384 and water4 0.262499 versus
+0.352445.  The result rejects independent class-agnostic time warp for the
+current three-recording dataset.  Future local temporal augmentation must use
+class-specific ranges measured from additional real videos.
+
+Artifacts: artifacts/best.pt, artifacts/metrics.json,
+artifacts/water2_validation.png, artifacts/water4_test.png,
+artifacts/comparison_046_048_049_050.png.

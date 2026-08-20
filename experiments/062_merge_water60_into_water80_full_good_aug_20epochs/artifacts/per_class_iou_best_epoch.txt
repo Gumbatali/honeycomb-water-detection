@@ -1,0 +1,8 @@
+best epoch: 16
+
+class          validation IoU
+water20        0.942779
+water40        0.530667
+water60–80     0.761955
+water100       0.898913
+macro          0.783578

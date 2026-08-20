@@ -1,0 +1,7 @@
+checkpoint: models/segmentation/v2/unet_water_v2.pth
+device: cuda
+fixed threshold: 0.50
+water1: Dice=0.960129 IoU=0.923315 P=0.990344 R=0.931703 Acc=0.977523
+water2: Dice=0.957736 IoU=0.918900 P=0.999584 R=0.919252 Acc=0.975020
+water4: Dice=0.868150 IoU=0.767019 P=1.000000 R=0.767019 Acc=0.928879
+macro: dice=0.928672 iou=0.869745 precision=0.996643 recall=0.872658 specificity=0.998704 pixel_accuracy=0.960474

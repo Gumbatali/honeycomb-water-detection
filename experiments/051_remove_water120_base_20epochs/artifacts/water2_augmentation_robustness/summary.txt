@@ -1,0 +1,13 @@
+video: water2
+checkpoint epoch: 18
+pre-processing: water120 neutralization + pixel-peak + ROI + U-Net preparation
+
+variant                       macro IoU  macro Dice      delta
+baseline                       0.696554    0.756528  +0.000000
+010_rotation                   0.564403    0.636151  -0.132150
+011_horizontal_flip            0.372295    0.432717  -0.324259
+012_geometric_affine           0.613323    0.678093  -0.083231
+013_background_patching        0.696554    0.756528  +0.000000
+014_defect_location_shift      0.646927    0.715796  -0.049627
+015_aggressive_rotation        0.638805    0.705829  -0.057749
+016_aggressive_affine          0.364668    0.403880  -0.331886

@@ -1,0 +1,21 @@
+{
+  "test_loss": 1.9825329780578613,
+  "test_ce": 1.6462340354919434,
+  "test_dice_loss": 0.6725978851318359,
+  "macro_iou": 0.31806273683562825,
+  "macro_dice": 0.36784958255584693,
+  "ordinal_mae": 0.7950296899054321,
+  "iou_class_1": 0.5392354124748491,
+  "iou_class_2": 0.535966149506347,
+  "iou_class_3": 0.0,
+  "iou_class_4": 0.0,
+  "iou_class_5": 0.515112122196945,
+  "pred_fraction_0": 0.7159266474104924,
+  "pred_fraction_1": 0.055417478336803924,
+  "pred_fraction_2": 0.02552562638543696,
+  "pred_fraction_3": 0.0,
+  "pred_fraction_4": 0.0,
+  "pred_fraction_5": 0.20313024786726674,
+  "test_video": "water4",
+  "checkpoint_epoch": 6
+}

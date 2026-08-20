@@ -1,0 +1,23 @@
+Experiment 060 results
+======================
+
+Status: completed 20 CUDA epochs.  Best checkpoint: epoch 11.
+
+Protocol
+--------
+Experiment 051 plus water60-only positive onset delay sampled uniformly from
+0 to 30 seconds on 218 of 320 training samples.  Heating and cooling scales
+are unchanged.  The mean active delay was 15.62 seconds; large delays can move
+the water60 response outside the 0--29.5 second model input.
+
+Results
+-------
+water2 validation: macro IoU 0.638009, water60 IoU 0.439797.
+water4 comparative check: macro IoU 0.513544, water60 IoU 0.000000.
+
+Decision
+--------
+Do not replace experiment 051.  A wide onset-shift distribution preserves more
+of water2 than experiment 058, but it still lowers water4 macro IoU from
+0.670653 to 0.513544 and does not recover water60.  Therefore delayed onset
+alone is not the water60 domain failure mechanism.

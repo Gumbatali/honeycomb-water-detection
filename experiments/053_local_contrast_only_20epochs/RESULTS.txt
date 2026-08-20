@@ -1,0 +1,26 @@
+Experiment 053 results
+======================
+
+Completed 20 CUDA epochs.  Best checkpoint: epoch 16.
+
+water2 validation
+-----------------
+macro IoU 0.485986; macro Dice 0.544737; loss 1.961138;
+ordinal MAE 0.820493.
+Class IoU: [0.876574, 0.000000, 0.425216, 0.782258, 0.345882].
+
+Comparative water4 evaluation
+-----------------------------
+macro IoU 0.401135; macro Dice 0.454709; loss 1.617882;
+ordinal MAE 0.987443.
+Class IoU: [0.807042, 0.025388, 0.103912, 0.659222, 0.410112].
+
+Local contrast alone recovers a small nonzero water60 IoU on water4, where
+experiment 051 scores zero.  However, water40 collapses on both recordings and
+water100 degrades strongly.  Per-pixel max-absolute normalization removes the
+relative contrast amplitude that distinguishes adjacent water levels.  This
+representation cannot replace the absolute thermal curve.
+
+Artifacts: artifacts/best.pt, artifacts/metrics.json,
+artifacts/local_contrast_check.png, artifacts/water2_validation.png,
+artifacts/water4_test.png and artifacts/comparison_051_053_054.png.

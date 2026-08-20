@@ -1,0 +1,71 @@
+Experiment 051 results
+======================
+
+Status: completed all 20 epochs on CUDA.  Best checkpoint: epoch 18.
+
+Removal protocol
+----------------
+water120 is absent from model supervision and evaluation.  Its thermal pixels
+in both the 60-frame GRU input and seven-frame U-Net input are replaced by the
+nearest normal-panel response from a local 31x31 neighborhood.  Its target
+pixels are ignore=255.  Original files remain unchanged.
+
+water2 validation
+-----------------
+macro IoU:       0.696554
+macro Dice:      0.756528
+validation loss: 0.624068
+ordinal MAE:     0.229036
+
+Class IoU:
+water20  0.892857
+water40  0.290234
+water60  0.651456
+water80  0.748450
+water100 0.899772
+
+Compared with experiment 045, neutralizing rather than merely ignoring the
+water120 input raises water2 macro IoU from 0.593125 to 0.696554 (+17.4%
+relative), lowers validation loss from 0.770424 to 0.624068 and improves
+ordinal MAE from 0.302673 to 0.229036.
+
+Comparative water4 evaluation
+-----------------------------
+water120 is neutralized and excluded under the same protocol.  water4 had
+already been opened in earlier work, so this is a comparative domain check.
+
+macro IoU:   0.670653
+macro Dice:  0.686989
+test loss:   1.039171
+ordinal MAE: 0.644937
+
+Class IoU:
+water20  0.658156
+water40  0.884774
+water60  0.000000
+water80  0.856526
+water100 0.953811
+
+Relative to experiment 045, water4 macro IoU rises from 0.547147 to 0.670653
+(+22.6% relative).  water80 and water100 improve especially strongly.  The
+water60 failure remains unchanged: the model does not emit class 3 on water4.
+This is now isolated as a class-specific recording/domain issue rather than a
+water120 side effect.
+
+Decision
+--------
+Experiment 051 is the strongest model in the current series on both water2 and
+comparative water4 metrics.  Use artifacts/best.pt, never the final epoch.
+The next work should target water60 with new real recordings or a separately
+measured class-specific transform; do not reintroduce class-agnostic cell warp.
+
+Artifacts
+---------
+artifacts/best.pt
+artifacts/metrics.json
+artifacts/neutralization_check.png
+artifacts/water2_validation.png
+artifacts/water4_test.png
+artifacts/water4_test_metrics.json
+artifacts/comparison_045_051_052.png
+TensorBoard logs: experiments/tensorboard_logs

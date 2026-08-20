@@ -1,0 +1,22 @@
+Experiment 061 results
+======================
+
+Status: completed 20 CUDA epochs.  Best checkpoint: epoch 19.
+
+Protocol
+--------
+Experiment 051 plus water60-only onset delay sampled uniformly from 5 to 10
+seconds on 218 of 320 training samples (mean 7.60 seconds).  Heating and
+cooling scales were unchanged; all other experiment-051 settings were retained.
+
+Results
+-------
+water2 validation: macro IoU 0.599019, water60 IoU 0.465501.
+water4 comparative check: macro IoU 0.464972, water60 IoU 0.000000.
+
+Decision
+--------
+Do not replace experiment 051.  The 5--10 s delay retains more validation
+performance than the 0--30 s stress test, but lowers water4 macro IoU from
+0.670653 to 0.464972 and does not recover water60.  Together with experiments
+058 and 060, this rules out onset-delay augmentation alone as a useful remedy.

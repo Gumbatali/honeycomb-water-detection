@@ -1,0 +1,29 @@
+Experiment 052 results
+======================
+
+Status: completed all 20 epochs on CUDA after a deterministic restart caused
+by an external process interruption.  Epoch-1 and epoch-5 metrics reproduced.
+Best checkpoint: epoch 5.
+
+water2 validation
+-----------------
+macro IoU 0.630978; macro Dice 0.712567; ordinal MAE 0.232180.
+Class IoU: [0.772026, 0.719498, 0.781908, 0.503529, 0.377929].
+
+The binary/ordinal heads produce much more balanced middle classes than 051,
+but reduce macro IoU from 0.696554 to 0.630978, mainly through water100.
+Training overfits after epoch 5; epoch 20 reaches only 0.3710 macro IoU.
+
+Comparative water4 evaluation
+-----------------------------
+macro IoU 0.263206; macro Dice 0.322065; ordinal MAE 1.043815.
+Class IoU: [0.407206, 0.320644, 0.000000, 0.097756, 0.490426].
+
+The multitask regularization selected on water2 does not transfer to water4.
+Experiment 052 must not replace 051.  With one training recording, the extra
+heads constrain the shared representation toward water1-specific ordinal
+relationships.  The simpler semantic model is more robust in this setting.
+
+Artifacts: artifacts/best.pt, artifacts/metrics.json,
+artifacts/water2_validation.png, artifacts/water4_test.png and
+artifacts/comparison_045_051_052.png.

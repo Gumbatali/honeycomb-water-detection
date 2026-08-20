@@ -1,0 +1,42 @@
+Experiment 049 results
+======================
+
+Completed 20 CUDA epochs.  Best checkpoint: epoch 7.
+
+Configuration
+-------------
+water120 is merged into water100; the combined CE weight is 0.5.  Semantic,
+binary-defect and ordinal heads are trained together.  Global spatial,
+radiometric and temporal augmentation is enabled.  Independent per-cell time
+warp is completely disabled.
+
+water2 validation
+-----------------
+macro IoU 0.576384; macro Dice 0.646803; ordinal MAE 0.742703.
+Class IoU: [0.859316, 0.381454, 0.794083, 0.434286, 0.412781].
+
+Removing local cell warp raises macro IoU from 0.543585 in experiment 048 to
+0.576384.  It also produces a more balanced result than experiment 046: the
+worst class improves from 0.289566 to 0.381454, although 046 retains the higher
+macro IoU (0.614987) and lower ordinal MAE (0.386162).
+
+Comparative water4 check
+------------------------
+macro IoU 0.352445; macro Dice 0.401558; ordinal MAE 0.974269.
+Class IoU: [0.707586, 0.602170, 0.000000, 0.159898, 0.292569].
+
+This is the best water4 macro IoU among the merged multitask variants tested:
+048 scores 0.349497 and 050 scores 0.262499.  It remains below experiment 045
+scored with the common merged target (0.459851).  Class 3 remains absent on
+water4 across all recent variants, indicating a recording/domain limitation.
+
+Decision
+--------
+Use 049 when a single combined water100/water120 output and more balanced
+water2 class behaviour are required.  Do not claim it supersedes 045 for
+cross-video generalisation.  Stop independent cell temporal warping until more
+real recordings provide measurable within-class ranges.
+
+Artifacts: artifacts/best.pt, artifacts/metrics.json,
+artifacts/water2_validation.png, artifacts/water4_test.png,
+artifacts/comparison_046_048_049_050.png.

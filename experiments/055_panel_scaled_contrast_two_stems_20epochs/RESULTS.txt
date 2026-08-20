@@ -1,0 +1,32 @@
+Experiment 055 result: REJECTED
+===============================
+
+Best validation checkpoint: epoch 3 / 20
+water2 macro-IoU:  0.283526
+water2 macro-Dice: 0.346952
+water2 loss:       1.431560
+water2 ordinal MAE: 0.877096
+
+Comparative water4 evaluation (not an independent test at this stage):
+macro-IoU 0.143844, macro-Dice 0.188421, loss 1.844499, ordinal MAE 1.292546.
+
+Comparison under the same water120-neutralisation and 20-epoch protocol:
+- 051, absolute-temperature baseline: water2 macro-IoU 0.696554; water4 0.670653.
+- 053, per-pixel normalised local contrast only: water2 0.485986; water4 0.401135.
+- 054, absolute + per-pixel local contrast: water2 0.492468; water4 0.495006.
+- 055, ROI-quantile-scaled contrast + separate stems: water2 0.283526; water4 0.143844.
+
+Conclusion
+----------
+Correcting the known pixel-wise amplitude loss did not restore performance.
+The morphology-derived contrast itself is not a useful additional representation
+for this small, cross-recording dataset; it likely changes the cell-boundary and
+lamp-field cues the frozen U-Net pyramid already uses.  Do not extend this run
+or use its checkpoint.  Keep 051 as the current model-selection winner.
+
+Artifacts
+---------
+- artifacts/metrics.json: all 0..20 training/validation points.
+- artifacts/water2_validation.png: best checkpoint prediction.
+- artifacts/water4_test.png: comparative external prediction.
+- artifacts/comparison_051_053_054_055.png: learning curve and controlled comparison.

@@ -1,0 +1,41 @@
+Experiment 048 results
+======================
+
+Completed 20 CUDA epochs with all requested changes enabled.  Best checkpoint:
+epoch 6.  The semantic output is accompanied during training by binary defect
+and ordinal water-level heads.
+
+water2 validation
+-----------------
+macro IoU 0.543585; macro Dice 0.629057; ordinal MAE 0.523027.
+Class IoU: [0.780379, 0.438028, 0.724947, 0.235763, 0.538807].
+
+The auxiliary heads improve over experiment 047 (0.543585 vs 0.536467 macro
+IoU) and recover class 3 to 0.724947, but they do not recover the experiment
+046 validation score of 0.614987.  Overfitting begins after the early optimum;
+epoch 20 has train/validation loss 0.4935/2.8994 and must not be used.
+
+Comparative water4 check
+------------------------
+macro IoU 0.349477; macro Dice 0.390880; ordinal MAE 0.776837.
+Class IoU: [0.631097, 0.670412, 0.000000, 0.026266, 0.419608].
+
+Multitask supervision improves water4 over experiment 047 (0.349477 vs
+0.264487) and experiment 046 (0.318063), confirming that the binary/ordinal
+regularizers are useful.  It remains below experiment 045 scored with the same
+merged target (0.459851), and class 3 still fails on water4.  The limiting
+factor is therefore data/domain coverage and overly broad local temporal
+augmentation, not insufficient model size.
+
+Decision
+--------
+Do not replace experiment 045 as the strongest comparative water4 model.  For
+the next train-only study, retain the multitask heads and balanced merged class,
+but remove local per-cell time warp or reduce it to measured class-specific
+within-class ranges.  Continue selecting exclusively on water2; water4 has
+already been opened and must not tune the ranges.
+
+Artifacts: artifacts/metrics.json, artifacts/best.pt,
+artifacts/water2_validation.png, artifacts/water4_test.png and
+artifacts/comparison_046_047_048.png.  TensorBoard logs were refreshed in
+experiments/tensorboard_logs.

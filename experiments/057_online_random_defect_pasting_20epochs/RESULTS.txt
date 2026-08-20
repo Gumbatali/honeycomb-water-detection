@@ -1,0 +1,40 @@
+Experiment 057 results
+======================
+
+Status: completed 20 CUDA epochs.  Best checkpoint: epoch 10 (selected only on water2).
+
+Training augmentation
+---------------------
+Experiment 051 plus online random defect pasting.  On 142 of 320 training
+draws (44.4%), one to three water20..water100 residual patches were pasted into
+independently sampled non-overlapping positions inside the neutral water1 panel.
+This yielded 273 pasted patches total.  water120 was not pasted; random pasting
+was mutually exclusive with cell permutation.
+
+water2 validation
+-----------------
+macro IoU:   0.430385
+macro Dice:  0.486460
+ordinal MAE: 0.530660
+
+water4 comparative check
+------------------------
+macro IoU:   0.260756
+macro Dice:  0.277676
+ordinal MAE: 1.117018
+
+Decision
+--------
+Do not replace experiment 051.  Relative to 051, macro IoU drops from 0.696554
+to 0.430385 on water2 and from 0.670653 to 0.260756 on water4.  Pasting only
+one to three isolated cells onto a neutral canvas disrupts the real panel/grid
+context and produces an overly sparse training target.  A follow-up should use
+realistically constrained whole-grid placements or a small mixture weight, not
+this unconstrained patch-pasting distribution.
+
+Artifacts
+---------
+artifacts/best.pt
+artifacts/metrics.json
+artifacts/water4_test_metrics.json
+artifacts/water4_test.png

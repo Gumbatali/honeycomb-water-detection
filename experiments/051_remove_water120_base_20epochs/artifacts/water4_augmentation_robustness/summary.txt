@@ -1,0 +1,12 @@
+checkpoint epoch: 18
+pre-processing: water120 neutralization + pixel-peak + ROI + U-Net preparation
+
+variant                       macro IoU  macro Dice      delta
+baseline                       0.670653    0.686989  +0.000000
+010_rotation                   0.588464    0.616120  -0.082189
+011_horizontal_flip            0.422503    0.450865  -0.248150
+012_geometric_affine           0.619850    0.645427  -0.050803
+013_background_patching        0.670653    0.686989  +0.000000
+014_defect_location_shift      0.629930    0.652153  -0.040724
+015_aggressive_rotation        0.657607    0.676728  -0.013047
+016_aggressive_affine          0.384013    0.415587  -0.286640

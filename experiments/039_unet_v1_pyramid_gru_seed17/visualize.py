@@ -12,7 +12,7 @@ import torch
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "experiments" / "030_unet_feature_pyramid_convgru"
 sys.path.insert(0, str(SOURCE))
-from model import UNetFeatureConvGRU  # noqa: E402
+from model import UNetFeatureConvGRU, UNetFeatureConvGRUMultitask  # noqa: E402
 from train import VideoDataset  # noqa: E402
 
 
@@ -22,13 +22,21 @@ def main() -> None:
     artifact = cli.artifact_dir.resolve() if cli.artifact_dir else Path(__file__).resolve().parent / "artifacts"
     checkpoint = torch.load(artifact / "best.pt", map_location="cuda", weights_only=False)
     args = checkpoint["args"]
-    model = UNetFeatureConvGRU(args["hidden"], args["dropout"], args["num_classes"]).cuda().eval()
+    model_class = UNetFeatureConvGRUMultitask if args.get("multitask_heads", False) else UNetFeatureConvGRU
+    thermal_channels = 2 if args.get("thermal_representation", "absolute") == "both" else 1
+    model = model_class(args["hidden"], args["dropout"], args["num_classes"], thermal_channels,
+                        args.get("separate_thermal_stems", False)).cuda().eval()
     model.load_state_dict(checkpoint["model_state"])
     thermal, unet_input, target = VideoDataset([("water2", None)], args["ignore_label"],
         args.get("thermal_normalization", "global"), args.get("apply_roi", False),
-        merge_label=args.get("merge_label"), merge_into=args.get("merge_into"))[0]
+        merge_label=args.get("merge_label"), merge_into=args.get("merge_into"),
+        neutralize_label=args.get("neutralize_label"),
+        thermal_representation=args.get("thermal_representation", "absolute"),
+        contrast_normalization=args.get("contrast_normalization", "pixel_peak"))[0]
     with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
-        prediction = model(thermal[None].cuda(), unet_input[None].cuda()).argmax(1)[0].cpu().numpy()
+        output = model(thermal[None].cuda(), unet_input[None].cuda())
+        logits = output[0] if isinstance(output, tuple) else output
+        prediction = logits.argmax(1)[0].cpu().numpy()
     truth = target.numpy(); valid = truth != 255
     prediction[~valid] = 0  # deployment post-processing: no defects outside the panel ROI
     error = (prediction != truth) & valid

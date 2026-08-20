@@ -1,0 +1,38 @@
+Experiment 056 results: segmentation v2
+========================================
+
+Checkpoint evaluated
+--------------------
+models/segmentation/v2/unet_water_v2.pth
+Binary 7-frame U-Net, evaluated on CUDA with documented frame-0 correction,
+global 0..20 s normalisation and panel ROI.  Metrics are binary defect versus
+normal-panel metrics; they do not assess water-level classification.
+
+Fixed deployment threshold = 0.50
+---------------------------------
+              Dice       IoU        Precision  Recall     Pixel accuracy
+water1        0.960129   0.923315   0.990344   0.931703   0.977523
+water2        0.957736   0.918900   0.999584   0.919252   0.975020
+water4        0.868150   0.767019   1.000000   0.767019   0.928879
+macro         0.928672   0.869745   0.996643   0.872658   0.960474
+
+Interpretation
+--------------
+On water1/water2 v2 has high binary segmentation quality.  On water4 it is
+conservative: zero false-positive pixels at 0.50, but 6,619 defect pixels are
+missed (recall 0.767).  This is a calibration/domain shift, not a precision
+problem.
+
+Threshold diagnostic (not a valid selected deployment threshold)
+---------------------------------------------------------------
+The best Dice on each same evaluated video occurs at threshold 0.05:
+water1 Dice 0.972003, water2 Dice 0.977370, water4 Dice 0.930074.  This would
+raise water4 recall to 0.870574 while retaining precision 0.998305, but it is
+an oracle calculation.  Select a lower operating threshold only on a separate
+calibration set, not on water4 itself.
+
+Artifacts
+---------
+artifacts/metrics.json: all metrics and threshold sweeps.
+artifacts/summary.txt: concise numerical summary.
+artifacts/all_videos_validation.png: probabilities, targets and predictions.

@@ -1,0 +1,75 @@
+Experiment 046 results
+======================
+
+Status: completed 20 epochs on CUDA in the studcamp environment.
+Selected checkpoint: epoch 6 (artifacts/best.pt).
+
+Label protocol
+--------------
+Original water120 label 6 is mapped to water100 label 5 before loss and metric
+calculation.  The model has six outputs: background plus water20, water40,
+water60, water80 and combined water100/water120.  Original masks on disk were
+not modified.
+
+Best water2 validation
+----------------------
+macro IoU:       0.614987
+macro Dice:      0.676105
+validation loss: 0.935557
+ordinal MAE:     0.386162
+
+class 1 IoU: 0.775056
+class 2 IoU: 0.703804
+class 3 IoU: 0.701528
+class 4 IoU: 0.289566
+class 5 IoU (water100/120): 0.604981
+
+The merged model improves substantially over experiment 045 when both are
+scored against the same 6->5 water2 targets: macro IoU 0.485482 -> 0.614987.
+Class 2 and class 3 improve strongly, and the combined class has 0.605 IoU.
+Training after epoch 6 overfits; by epoch 20 train loss is 0.3079 while
+validation loss is 1.5347.  The final epoch must not be used.
+
+Comparative water4 evaluation
+-----------------------------
+water4 was already opened for experiment 045, so this is a comparative domain
+check rather than a fresh unbiased final test.
+
+macro IoU:   0.318063
+macro Dice:  0.367850
+test loss:   1.982533
+ordinal MAE: 0.795030
+
+class 1 IoU: 0.539235
+class 2 IoU: 0.535966
+class 3 IoU: 0.000000
+class 4 IoU: 0.000000
+class 5 IoU (water100/120): 0.515112
+
+Under the same merged water4 target protocol, experiment 045 scores 0.459851
+macro IoU and experiment 046 scores 0.318063.  The merged class occupies about
+twice the area of the other defect classes and receives the same per-pixel CE
+weight.  The new model predicts class 5 for 20.3% of valid water4 pixels and
+does not predict classes 3 or 4.  Therefore unweighted merging improves water2
+but does not generalize better to water4 and should not replace 045 yet.
+
+Recommendation
+--------------
+Keep the semantically correct water120->water100 mapping, but test it in a new
+controlled experiment with class-5 cross-entropy weight 0.5 to compensate for
+the doubled supervised area.  Filling water120 with neutral background is not
+recommended: it creates a physically false negative and is impossible at
+deployment unless the water120 region is already known.  If water120 truly
+must be excluded, ignoring its loss as in experiment 045 is safer than teaching
+the model that it is background.
+
+Artifacts
+---------
+artifacts/train_val_comparison.png
+artifacts/water2_validation.png
+artifacts/water2_confusion_matrix.json
+artifacts/water4_test.png
+artifacts/water4_test_metrics.json
+artifacts/water4_test_confusion_matrix.json
+artifacts/metrics.json
+TensorBoard logs: experiments/tensorboard_logs

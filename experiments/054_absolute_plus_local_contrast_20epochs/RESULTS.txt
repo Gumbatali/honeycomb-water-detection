@@ -1,0 +1,37 @@
+Experiment 054 results
+======================
+
+Completed 20 CUDA epochs.  Best checkpoint: epoch 18.  One attempted duplicate
+was rejected by CUDA OOM while the original process was active; only the
+single original process produced this experiment's artifacts.
+
+water2 validation
+-----------------
+macro IoU 0.492468; macro Dice 0.547043; loss 1.736344;
+ordinal MAE 0.843553.
+Class IoU: [0.947368, 0.000000, 0.312697, 0.801811, 0.400463].
+
+Comparative water4 evaluation
+-----------------------------
+macro IoU 0.495006; macro Dice 0.498894; loss 1.701242;
+ordinal MAE 0.993855.
+Class IoU: [0.714894, 0.004225, 0.003814, 0.829916, 0.922184].
+
+Adding absolute temperature beside the independently normalized contrast does
+not restore water40/water60.  The first encoder block must learn incompatible
+channel scales from one training recording, and the contrast channel discards
+amplitude information.  Experiment 051 remains decisively better: 0.696554
+versus 0.492468 on water2 and 0.670653 versus 0.495006 on water4.
+
+Decision
+--------
+Do not select 053 or 054.  The local-background idea is not rejected, because
+053 exposes some water60 signal.  The rejected component is per-pixel contrast
+normalization.  A future controlled variant should scale the entire contrast
+video by one panel-level robust percentile (or by the local-background peak),
+preserving relative amplitude between cells, and should project each input
+channel separately before fusion.
+
+Artifacts: artifacts/best.pt, artifacts/metrics.json,
+artifacts/water2_validation.png, artifacts/water4_test.png and
+artifacts/comparison_051_053_054.png.  TensorBoard logs were refreshed.

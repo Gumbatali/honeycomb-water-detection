@@ -26,3 +26,5 @@ venv/
 *.pem
 ssh-key-*
 .env
+
+experiments/

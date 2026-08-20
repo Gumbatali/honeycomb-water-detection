@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+root="/home/votter/projects/honeycomb-water-detection"
+exec conda run --no-capture-output -n studcamp python \
+  "$root/experiments/030_unet_feature_pyramid_convgru/train.py" \
+  --output-dir "$root/experiments/061_water60_onset_shift_5_10s_20epochs/artifacts" \
+  --unet-checkpoint "$root/models/segmentation/v1/unet_water_v2.pth" \
+  --train-video water1 --valid-video water2 \
+  --online-domain-augmentation --online-temporal-augmentation --online-water60-onset-shift-augmentation \
+  --water60-onset-shift-min 5 --water60-onset-shift-max 10 --online-repeats 16 \
+  --num-classes 6 --ignore-label 6 --neutralize-label 6 \
+  --apply-roi --thermal-normalization pixel_peak \
+  --amp-dtype bf16 --hidden 128 --dropout 0.20 \
+  --lr 1e-4 --weight-decay 1e-4 --epochs 20 --patience 30 --seed 17
